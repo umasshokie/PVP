@@ -12,8 +12,7 @@ public class VisualProcessor {
 		
 		PVP pvp = (PVP) state;
 		world = pvp.world;
-		
-		
+	
 	}
 
 	//Takes in the location of an animal and the state of the world
