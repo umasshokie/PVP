@@ -174,7 +174,8 @@ private int daysLM = 28;
 	
 	public void behaviorProb(Bag locs, Bag seen){
 	
-		int[] newProb = behavior.updateProbPred(locs, seen, defaultProb);
+		behavior = new BehaviorProcessor(grid);
+		int[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this);
 		
 		actualProb = newProb;
 	}
