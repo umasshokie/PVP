@@ -19,7 +19,7 @@ public abstract class Animal implements Steppable {
 	public final int SOUTH = 1;
 	public final int EAST = 2;
 	public final int WEST = 3;
-	protected BehaviorProcessor behavior = new BehaviorProcessor();
+	protected BehaviorProcessor behavior;
 	protected VisualProcessor vP;
 	
 	
