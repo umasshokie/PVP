@@ -34,7 +34,7 @@ public class Food implements Steppable {
 		double d = pvp.random.nextInt(diseaseRandNum);
 		double disease = d/diseaseRandNum;
 		
-		assert (disease > 0);
+		assert (disease >= 0);
 		
 		if(disease < diseasePr)
 			diseased = true;
@@ -48,7 +48,7 @@ public class Food implements Steppable {
 		//System.out.println("rep: " + rep);
 		double repro = rep/repRandNum;
 		//System.out.println("Repro: " + repro);
-		assert (repro > 0);
+		assert (repro >= 0);
 		
 		if(repro < repPr)
 			this.spread(grid, pvp);

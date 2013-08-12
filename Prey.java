@@ -23,6 +23,7 @@ private int daysLM = 28;
 	
 	
 	Prey(SimState state){
+	
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
 			direction = 0;
@@ -35,6 +36,9 @@ private int daysLM = 28;
 		vP = new VisualProcessor(state);
 	}
 	
+	public void makeStoppable(Stoppable stopper){
+		stop = stopper;
+	}
 	@Override
 	public void step(SimState state) {
 		// TODO Auto-generated method stub
@@ -141,6 +145,7 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 		
 		//System.out.println("d: " + d + " death: " + death);
 		if(death < deathRate && death != 0){
+			stop.stop();
 			grid.remove(this);
 			return true;
 		}
@@ -156,5 +161,14 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 			return true;
 			}
 		return false;
+	}
+	
+	public double getRepRate(){
+		
+		return actualRepRate;
+	}
+	
+	public void setRepRate(double repRate){
+		actualRepRate = repRate;
 	}
 }

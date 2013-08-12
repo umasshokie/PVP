@@ -9,7 +9,7 @@ public class Predator extends Animal implements Steppable{
 
 private int oldAge = 1000;
 private double deathRate = .0001;
-private double repoRate = .00001;
+private double actualRepRate = .00001;
 private double agingDeathMod = 1.0001;
 private double hungerDeathMod = 1.01;
 private int repAge = 56;
@@ -19,7 +19,9 @@ private Bag seen;
 private int daysLM = 28;
 
 
+
 	Predator(SimState state){
+		
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
 			direction = 0;
@@ -31,27 +33,33 @@ private int daysLM = 28;
 			direction = 3;
 		vP = new VisualProcessor(state);
 	}
+	
+	public void makeStoppable(Stoppable stopper){
+		stop = stopper;
+	}
 	@Override
 	public void step(SimState state) {
 		// TODO Auto-generated method stub
 		super.step(state);
 		//System.out.println("Last Meal: " + lastMeal + " timesteps");
-
-		//Visual Processor
-		this.vision(state, grid);
 		
 		//Death Calculations
 		if(this.iDie(state))
 			return;
+			
 		
 		//Reproduction Calculations
-		if(this.iReproduce(state))
+		else if(this.iReproduce(state))
 			return;
 		
+		//Visual Processor
+		else
+			this.vision(state, grid);
+			
+		
 		//Will I eat?
-		/*if(this.willEat(grid, state))
+		if(this.willEat(grid, state))
 			return;
-		*/
 
 		
 		
@@ -66,7 +74,10 @@ private int daysLM = 28;
 				this.setDisease(true);
 			lastMeal = 0;
 			//System.out.println(this + " ate " + p);
-			grid.remove(p);
+			prey.stop.stop();
+			grid.remove(prey);
+	
+			
 		}
 			
 	}
@@ -92,7 +103,11 @@ private int daysLM = 28;
 		
 		//System.out.println("d: " + d + " death: " + death);
 		if(death < deathRate){
+			//System.out.println(this + " Died");
+			stop.stop();
 			grid.remove(this);
+			
+				
 			return true;
 		}
 		return false;
@@ -105,7 +120,7 @@ private int daysLM = 28;
 				
 		assert (r >= 0 && repo >= 0);
 				
-		if(repo <= repoRate && age >= repAge){
+		if(repo <= actualRepRate && age >= repAge){
 			this.reproduce(state);
 			return true;
 		}
@@ -118,14 +133,15 @@ private int daysLM = 28;
 		assert(grid.getObjectsAtLocationOfObject(this) !=null);
 		
 		
-		System.out.println(grid.getObjectsAtLocationOfObject(this).size());
+		//System.out.println(grid.getObjectsAtLocationOfObject(this).size());
 			int gridNum = grid.getObjectsAtLocationOfObject(this).size();
 			
 			assert(gridNum != 0);
 			
 			for(int i = 0; i < gridNum; i++){
 				Object obj = (grid.getObjectsAtLocationOfObject(this)).get(i);
-				if(obj.getClass().equals(Prey.class) && obj != null){
+				if(obj.getClass().equals(Prey.class)){
+					//System.out.println("Predator Ate");
 					this.eat(obj);
 					return true;
 				}// end of if
@@ -137,46 +153,60 @@ private int daysLM = 28;
 	//Method that allows Predator to duplicate
 	public void reproduce(SimState state){
 		
+		System.out.println("Predator Reproduced");
 		
 		Predator p = new Predator(state);
 		
 		grid.setObjectLocation(p, grid.getObjectLocation(this));
-		state.schedule.scheduleRepeating(p);
+		Stoppable stop = state.schedule.scheduleRepeating(p);
+		p.makeStoppable(stop);
 	}
 	public void vision(SimState state, SparseGrid2D grid){
 		//System.out.println("Direction: " + direction);
 		//Visual Processor				
-		
+		//System.out.println("This: " + this);
+		//System.out.println("Grid: " + grid);
+		//System.out.println("Location: " + grid.getObjectLocation(this));
 		Int2D cord = grid.getObjectLocation(this);
-		assert(vP != null && cord != null);
-		assert(direction!=0);
+		assert(cord != null);
+
 		//System.out.println(this + "was at location: " + cord);
-		if(cord != null){
 		seen = vP.sight(cord.x, cord.y, state, direction);
 		Bag locations = new Bag();
 		
 		//Testing Print Statements
 		for(int s = 0; s < seen.size(); s++){
-			Object j = seen.get(s);
+			
 			//System.out.print(s + "saw " + seen.get(s));
-			Int2D obLoc = grid.getObjectLocation(j);
+			Int2D obLoc = grid.getObjectLocation(seen.get(s));
+	
 			locations.add(obLoc);
 			//System.out.println(" at location:" + obLoc);
 			//if(j.equals(Prey.class))
 				//System.out.println("****" + seen.get(s));
-			}// end of for loop
-		
-		this.behaviorProb(locations, seen);
+		}
+			
+		this.behaviorProb(locations, seen, state);
 		
 		//Move every timestep
-		super.move(grid, state);}
+		super.move(grid, state);
+		//System.out.println("Predator Moved");
 	}// end of vision
 	
-	public void behaviorProb(Bag locs, Bag seen){
+	public void behaviorProb(Bag locs, Bag seen, SimState state){
 	
 		behavior = new BehaviorProcessor(grid);
-		int[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this);
+		int[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this, state);
 		
 		actualProb = newProb;
+	}
+	
+	public double getRepRate(){
+		
+		return actualRepRate;
+	}
+	
+	public void setRepRate(double repRate){
+		actualRepRate = repRate;
 	}
 }

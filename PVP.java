@@ -167,8 +167,9 @@ public class PVP extends SimState{
 			
 			//System.out.println("loc x : " + loc.x + " loc.y: " + loc.y);
 			world.setObjectLocation(p, new Int2D(loc.x,loc.y));
-			schedule.scheduleRepeating(p);
-			
+			Stoppable stop = schedule.scheduleRepeating(p);
+			p.makeStoppable(stop);
+			//System.out.println(world.getObjectLocation(p));
 			
 		}
 		
@@ -182,8 +183,10 @@ public class PVP extends SimState{
 			loc.y = world.ty(twister.nextInt());
 			
 			world.setObjectLocation(prey, new Int2D(loc.x, loc.y));
-			schedule.scheduleRepeating(prey);
+			Stoppable stop = schedule.scheduleRepeating(prey);
+			prey.makeStoppable(stop);
 			
+			System.out.println(world.getObjectLocation(prey));
 		}
 	}
 	
