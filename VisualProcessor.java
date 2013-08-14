@@ -29,35 +29,7 @@ public class VisualProcessor {
 		
 		Bag locs = new Bag();
 		//North
-		if(direction == 0){
-			//Peripheral vision locations
-			Int2D tempy = new Int2D(world.tx(x-1),world.ty(y));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x+1),world.ty(y));
-			locs.add(tempy);
-			
-			//Three Forward Squares Vision Locations
-			tempy = new Int2D(world.tx(x-1), world.ty(y+1));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x), world.ty(y+1));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x+1), world.ty(y+1));
-			locs.add(tempy);
-			
-			//Five Further Vision Locations
-			tempy = new Int2D(world.tx(x-2), world.ty(y+2));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x-1), world.ty(y+2));
-			locs.add(tempy);
-			tempy =  new Int2D(world.tx(x), world.ty(y+2));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x+1),world.ty(y+2));
-			locs.add(tempy);
-			tempy = new Int2D(world.tx(x+2),world.ty(y+2));
-			locs.add(tempy);
-		}
-		//South
-		else if (direction == 1){
+		if (direction == 0){
 			//Peripheral vision locations
 			Int2D tempy = new Int2D(world.tx(x-1),world.ty(y));
 			locs.add(tempy);
@@ -84,6 +56,35 @@ public class VisualProcessor {
 			tempy = new Int2D(world.tx(x+2),world.ty(y-2));
 			locs.add(tempy);
 		}
+		//South
+		else if(direction == 1){
+			//Peripheral vision locations
+			Int2D tempy = new Int2D(world.tx(x-1),world.ty(y));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x+1),world.ty(y));
+			locs.add(tempy);
+			
+			//Three Forward Squares Vision Locations
+			tempy = new Int2D(world.tx(x-1), world.ty(y+1));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x), world.ty(y+1));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x+1), world.ty(y+1));
+			locs.add(tempy);
+			
+			//Five Further Vision Locations
+			tempy = new Int2D(world.tx(x-2), world.ty(y+2));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x-1), world.ty(y+2));
+			locs.add(tempy);
+			tempy =  new Int2D(world.tx(x), world.ty(y+2));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x+1),world.ty(y+2));
+			locs.add(tempy);
+			tempy = new Int2D(world.tx(x+2),world.ty(y+2));
+			locs.add(tempy);
+		}
+		
 		//East
 		else if (direction == 2){
 			//Peripheral vision locations
@@ -140,6 +141,7 @@ public class VisualProcessor {
 			tempy = new Int2D(world.tx(x-2),world.ty(y-2));
 			locs.add(tempy);
 		}
+	
 		seen = world.getObjectsAtLocations(locs, seen);
 		
 		return seen;

@@ -175,6 +175,8 @@ private int daysLM = 28;
 		Bag locations = new Bag();
 		
 		//Testing Print Statements
+		//System.out.println("direction:" + direction);
+		//System.out.println("Cord of Pred:" + cord);
 		for(int s = 0; s < seen.size(); s++){
 			
 			//System.out.print(s + "saw " + seen.get(s));
