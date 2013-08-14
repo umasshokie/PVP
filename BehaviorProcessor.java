@@ -30,6 +30,7 @@ public class BehaviorProcessor {
 		int[] newProb = oldProb;
 		
 		Bag locations = new Bag();
+		Bag fLocations = new Bag();
 		//System.out.println("Seen.size(): " + seen.size());
 		//System.out.println("Locs.size(): " + locs.size());
 		assert (seen.size() == locs.size());
@@ -43,7 +44,7 @@ public class BehaviorProcessor {
 			if(seen.get(s).getClass().equals(Prey.class)){
 				
 				foodRewards++;
-				locations.add(locs.get(s));
+				fLocations.add(locs.get(s));
 			}
 			else if (seen.get(s).getClass().equals(Predator.class)){
 				otherRewards++;
@@ -55,31 +56,38 @@ public class BehaviorProcessor {
 			System.out.println("newProb[i]: " + newProb[i]);
 		}
 	
+		
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
 		
 		//Reward Probability
-		if(locations.size() > 0){
+		if(fLocations.size() > 0){
 			int directOpposite = 0;
 			int adjOpposite1 = 0;
 			int adjOpposite2 = 0;
 			Int2D pLoc = world.getObjectLocation(predator);
 			System.out.println(pLoc);
 			
+			//Set of conditions. If hungry
+			
 			//Reward locations
-			Int2D rewardLoc = (Int2D) locations.get(0);
+			Int2D rewardLoc = (Int2D) fLocations.get(0);
 			//System.out.println("RewardLoc: " + rewardLoc);
-			Bag adj = this.findAdjSquares(rewardLoc, pLoc);
-			Int2D adjLoc1 = (Int2D) adj.get(0);
-			Int2D adjLoc2 = (Int2D) adj.get(1);
-			//System.out.println("Adjacent Loc1: " + adjLoc1);
-			//System.out.println("Adjacent Loc2: " + adjLoc2);
+			Bag adj = this.findAdjSquares(rewardLoc, pLoc, predator.direction);
+			Int2D adjLoc1 = (Int2D) adj.get(1);
+			Int2D adjLoc2 = (Int2D) adj.get(2);
+			System.out.println("Adjacent Loc1: " + adjLoc1);
+			System.out.println("Adjacent Loc2: " + adjLoc2);
 		
 			
 			Bag opp = this.getOpposite(rewardLoc, world.getObjectLocation(predator), predator.direction);
 			Int2D oppositeCell = (Int2D) opp.get(0);
 			Int2D adjCell1 = (Int2D) opp.get(1);
 			Int2D adjCell2 = (Int2D) opp.get(2);
+			
+			System.out.println("Opposite Cell: " + oppositeCell);
+			System.out.println("Opp Adj Cell 1:" + adjCell1);
+			System.out.println("Opp Adj Cell 2:" + adjCell2);
 			
 			//Indexes
 			int directOppositeIndex = this.probIndex(pLoc, oppositeCell);
@@ -89,25 +97,19 @@ public class BehaviorProcessor {
 			int adj1Index = this.probIndex(pLoc, adjLoc1);
 			int adj2Index = this.probIndex(pLoc, adjLoc2);
 			
+			System.out.println("DirectOppositeIndex: " + directOppositeIndex);
+			System.out.println("AdjacentOppositeIndex1: " + adjOpposite1Index);
+			System.out.println("AdjacentOppositeIndex2: " + adjOpposite2Index);
+			System.out.println("RewardIndex: " + rewardIndex);
+			System.out.println("Adjacent 1 Index: " + adj1Index);
+			System.out.println("Adjacent 2 Index: " + adj2Index);
+			
+			
 			//variables for redistribution
-			directOpposite = oldProb[directOppositeIndex]/2;
-			System.out.println("directOpposite before: " + oldProb[directOppositeIndex] + " directopp after: " + oldProb[directOppositeIndex]/2);
-			adjOpposite1 = oldProb[adjOpposite1]/4;
-			System.out.println("adjOpposite before: " + oldProb[adjOpposite1Index] + " adjOpp after: " + oldProb[adjOpposite1Index]/2);
-			adjOpposite2 = oldProb[adjOpposite2]/4;
-			System.out.println("adjOpposite before: " + oldProb[adjOpposite2Index] + " adjOpp after: " + oldProb[adjOpposite2Index]/2);
 			
 			//updating probability reduction
-			newProb[directOppositeIndex] = directOpposite;
-			newProb[adjOpposite1Index] = adjOpposite1;
-			newProb[adjOpposite2Index] = adjOpposite2;
 			
-			System.out.println("newProb[rewardIndex]: " + (newProb[rewardIndex] + directOpposite));
-			newProb[rewardIndex] = newProb[rewardIndex] + directOpposite;
-			//System.out.println(newProb[rewardIndex]);
-			newProb[adj1Index] = newProb[adj1Index] + adjOpposite1;
-			newProb[adj2Index] = newProb[adj2Index] + adjOpposite2;
-			
+		
 		}
 		/*else if(foodRewards == 1){
 			if(predator.lastMeal > 56){
@@ -122,10 +124,11 @@ public class BehaviorProcessor {
 			}*/
 		//}
 		
-		
+	
 		/*for(int i = 0; i < newProb.length; i++)
 			System.out.println("Prob, Index:" + i + " = " + newProb[i]);
 		return newProb;*/
+		
 		return newProb;
 		
 		
@@ -226,12 +229,12 @@ public class BehaviorProcessor {
 		int sideX2 = -1;
 		int sideY1 = -1;
 		int sideY2 = -1;
-		
+		/*
 		System.out.println("location: " + location);
 		System.out.println("pLoc: " + pLoc);
 		System.out.println("direct: " + direct);
 		System.out.println("x: "+ x);
-		System.out.println("y: " + y);
+		System.out.println("y: " + y);*/
 /*****************************************NORTH************************************/		
 		//Facing North
 		if(direct == 0){
@@ -436,20 +439,6 @@ public class BehaviorProcessor {
 			
 			else {
 				System.out.println("Error - East");
-				System.out.println("Right:");
-				System.out.println((world.ty(pLoc.y - 1) + " " + world.tx(pLoc.x + 1)));
-				System.out.println((world.ty(pLoc.y - 1) + " " +  world.tx(pLoc.x + 2)));
-				System.out.println((world.ty(pLoc.y - 2) + " " +  world.tx(pLoc.x + 2)));
-				System.out.println("Foward");
-				System.out.println(((world.ty(pLoc.y) + " " + world.tx(pLoc.x + 1)))); 
-				System.out.println((world.ty(pLoc.y) + " " +  world.tx(pLoc.x + 2)));
-				System.out.println("Peripheral vision");
-				System.out.println(world.ty(pLoc.y + 1) + " " + pLoc.x);
-				System.out.println(world.ty(pLoc.y - 1) + " " + pLoc.x);
-				System.out.println("Left:");
-				System.out.println((world.ty(pLoc.y+1) + " " + world.tx(pLoc.x+1)));
-				System.out.println((world.ty(pLoc.y +2) + " " + world.tx(pLoc.x+2)));
-				System.out.println((world.ty(pLoc.y + 1) + " " +  world.tx(pLoc.x+2)));
 			}
 		}// end of East
 		
@@ -524,20 +513,6 @@ public class BehaviorProcessor {
 			
 			else {
 				System.out.println("Error - West");
-				System.out.println("Right:");
-				System.out.println((world.ty(pLoc.y + 1) + " " + world.tx(pLoc.x - 1)));
-				System.out.println((world.ty(pLoc.y + 1) + " " +  world.tx(pLoc.x - 2)));
-				System.out.println((world.ty(pLoc.y + 2) + " " +  world.tx(pLoc.x - 2)));
-				System.out.println("Foward");
-				System.out.println(((world.ty(pLoc.y) + " " + world.tx(pLoc.x - 1)))); 
-				System.out.println((world.ty(pLoc.y) + " " +  world.tx(pLoc.x - 2)));
-				System.out.println("Peripheral vision");
-				System.out.println(world.ty(pLoc.y + 1) + " " + pLoc.x);
-				System.out.println(world.ty(pLoc.y - 1) + " " + pLoc.x);
-				System.out.println("Left:");
-				System.out.println((world.ty(pLoc.y-1) + " " + world.tx(pLoc.x-1)));
-				System.out.println((world.ty(pLoc.y - 1) + " " + world.tx(pLoc.x-2)));
-				System.out.println((world.ty(pLoc.y - 2) + " " +  world.tx(pLoc.x-2)));
 			}
 		}// end of West
 		//Adding locations to the bag
@@ -559,67 +534,139 @@ public class BehaviorProcessor {
 	//Need adjacent Method that finds two adjacent sides
 	// Takes argument of location, returns bag of two
 	// Adjacent Int2D locations
-	private Bag findAdjSquares(Int2D loc, Int2D pLoc){
+	private Bag findAdjSquares(Int2D loc, Int2D pLoc, int direction){
 		Bag adj = new Bag();
-		//System.out.println("Location: " + loc);
-		//System.out.println("PLOC: " + pLoc);
+		System.out.println("Location: " + loc);
+		System.out.println("PLOC: " + pLoc);
+		int x = pLoc.x;
+		int y = pLoc.y;
 		
-		//if(world.tx(loc.x) == world.tx(pLoc.x - 2) && )
-		//Statement about extended adjacents
+		//For further visual in north direction, reset adj squares to correspond to possible movement square
+		//North
+		if(direction == 0){
+			if(world.ty(loc.y) == world.ty(pLoc.y - 2)){
+				if(world.tx(loc.x) == world.tx(pLoc.x - 2) || world.tx(loc.x) == world.tx(pLoc.x - 1)){
+					x = pLoc.x - 1;
+					y = pLoc.y - 1;
+				}
+				else if (world.tx(loc.x) == world.tx(pLoc.x)){
+					y = pLoc.y - 1;
+				}
+				else if(world.tx(loc.x) == world.tx(pLoc.x + 1) || world.tx(loc.x) == world.tx(pLoc.x + 2)){
+					x = pLoc.x + 1;
+					y = pLoc.y - 1;
+				}
+			}
+		}
+		//South
+		else if (direction == 1){
+			if(world.ty(loc.y) == world.ty(pLoc.y + 2)){
+				if(world.tx(loc.x) == world.tx(pLoc.x -2) || world.tx(loc.x) == world.tx(pLoc.x - 1)){
+					x = pLoc.x - 1;
+					y = pLoc.y + 1;
+				}
+				else if (world.tx(loc.x) == world.tx(pLoc.x)){
+					y = pLoc.y + 1;
+				}
+				else if (world.tx(loc.x) == world.tx(pLoc.x + 1) || world.tx(loc.x) == world.tx(pLoc.x + 2)){
+					x = pLoc.x + 1;
+					y = pLoc.y + 1;
+				}
+			}
+		}
+		//East
+		else if (direction == 2){
+			if(world.tx(loc.x) == world.tx(pLoc.x + 2)){
+				if(world.ty(loc.y) == world.ty(pLoc.y - 2) || world.ty(loc.y) == world.ty(pLoc.y - 1)){
+					x = pLoc.x + 1;
+					y = pLoc.y - 1;
+				}
+				else if (world.ty(loc.y) == world.ty(pLoc.y)){
+					x = pLoc.x + 1;
+				}
+				else if (world.ty(loc.y) == world.ty(pLoc.y + 1) || world.ty(loc.y) == world.ty(pLoc.y + 2)){
+					x = pLoc.x + 1;
+					y = pLoc.y + 1;
+				}
+			}
+			else if (world.tx(loc.x) == world.tx(pLoc.x + 1)){
+				x = pLoc.x + 1;
+			}
+		}
+		//West
+		else{
+			if (world.tx(loc.x) == world.tx(pLoc.x - 2)){
+				if(world.ty(loc.y) == world.ty(pLoc.y - 2) || world.ty(loc.y) == world.ty(pLoc.y - 1)){
+					x = pLoc.x - 1;
+					y = pLoc.y - 1;
+				}
+				else if (world.ty(loc.y) == world.ty(pLoc.y)){
+					x = pLoc.x - 1;
+				}
+				else if (world.ty(loc.y) == world.ty(pLoc.y + 1) || world.ty(loc.y) == world.ty(pLoc.y + 2)){
+					x = pLoc.x - 1;
+					y = pLoc.y + 1;
+				}
+			}
+		}
+	
+		//Adding first element to the bag to be location of reward
+		adj.add(new Int2D(x, y));
+		System.out.println("X and Y: " + adj.get(0));
 		
 		//Left location probabilities
-		if(world.tx(loc.x) < world.tx(pLoc.x)){
-			if(world.ty(loc.y) == world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x), world.ty(loc.y - 1)));
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y)));
+		if(world.tx(x) < world.tx(pLoc.x)){
+			if(world.ty(y) > world.ty(pLoc.y)){
+				adj.add(new Int2D(world.tx(pLoc.x), world.ty(pLoc.y + 1)));
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y)));
 			}
-			else if(world.ty(loc.y)< world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y)));
-				adj.add(new Int2D(world.tx(loc.x), world.ty(loc.y - 1)));
+			else if((y)< world.ty(y)){
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y)));
+				adj.add(new Int2D(world.tx(pLoc.x), world.ty(pLoc.y - 1)));
 			}
 			else{
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y + 1)));
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y - 1)));
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y + 1)));
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y - 1)));
 			}
 		}// end of left location possibilities
 			
 		//Right Location Possibilities
-		else if (world.tx(loc.x) > world.tx(pLoc.x)){
-			if(world.ty(loc.y) > world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x), world.ty(loc.y - 1)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y)));
+		else if (world.tx(x) > world.tx(pLoc.x)){
+			if(world.ty(y) < world.ty(pLoc.y)){
+				adj.add(new Int2D(world.tx(pLoc.x), world.ty(pLoc.y - 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y)));
 			}
-			else if (world.ty(loc.y)<world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x), world.ty(loc.y + 1)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y)));
+			else if (world.ty(y)>world.ty(y)){
+				adj.add(new Int2D(world.tx(pLoc.x), world.ty(pLoc.y + 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y)));
 			}
 			else{
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y + 1)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y - 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y + 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y - 1)));
 			}
 		} // end of right location possibilites
 			
 		//Middle possibilites
 		else{
-			if(world.ty(loc.y) > world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y - 1)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y - 1)));			
+			if(world.ty(y) > world.ty(pLoc.y)){
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y + 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y + 1)));			
 			}
-			else if (world.ty(loc.y) < world.ty(pLoc.y)){
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y + 1)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y + 1)));
+			else if (world.ty(y) < world.ty(pLoc.y)){
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y - 1)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y - 1)));
 			}
 			else {
 				System.out.println("Adjacent Error");
-				adj.add(new Int2D(world.tx(loc.x - 1), world.ty(loc.y)));
-				adj.add(new Int2D(world.tx(loc.x + 1), world.ty(loc.y)));
+				adj.add(new Int2D(world.tx(pLoc.x - 1), world.ty(pLoc.y)));
+				adj.add(new Int2D(world.tx(pLoc.x + 1), world.ty(pLoc.y)));
 			}
 		}// end of middle possibilities
 	
-		/*for(int a = 0; a < adj.size(); a++){
-			System.out.println(adj.get(a));
+		for(int a = 0; a < adj.size(); a++){
+			System.out.println("Adjacent Bag:" + a + " " + adj.get(a));
 		}
-		*/
+		
 		
 		return adj;
 	}
@@ -628,38 +675,46 @@ public class BehaviorProcessor {
 	// Useful for editing probabilites
 	public int probIndex(Int2D pLoc, Int2D itemLoc){
 		
-		if(world.tx(itemLoc.x) < pLoc.x){
-			if(world.ty(itemLoc.y) > pLoc.y)
+		if(world.tx(itemLoc.x) < world.tx(pLoc.x)){
+			if(world.ty(itemLoc.y) < world.ty(pLoc.y))
 				return 0;
-			else if(world.ty(itemLoc.y)< pLoc.y)
+			else if(world.ty(itemLoc.y)> world.ty(pLoc.y))
 				return 5;
 			else
 				return 3;
 		} // end of left location possibilities
-		else if(world.tx(itemLoc.x) > pLoc.x){
-			if(world.ty(itemLoc.y) > pLoc.y)
+		else if(world.tx(itemLoc.x) > world.tx(pLoc.x)){
+			if(world.ty(itemLoc.y) <world.ty(pLoc.y))
 				return 2;
-			else if (world.ty(itemLoc.y) < pLoc.y)
+			else if (world.ty(itemLoc.y) > world.ty(pLoc.y))
 				return 7;
 			else
 				return 4;
 		}// end of right location possibilities
 		else{
-			if(world.ty(itemLoc.y) > pLoc.y)
+			if(world.ty(itemLoc.y) < world.ty(pLoc.y))
 				return 1;
 			else
 				return 6;
 		}
 	} // end of method
 
-	protected void increaseTowardFood(int lastMeal){
+	/*protected void increaseTowardFood(int lastMeal, int numAdj, int numMov){
 		
+		double hunger;
+		int x = 
 		
-		double hunger = lastMeal/maxHunger;
-		//double prob = x * hunger;
+		hunger = (double)lastMeal/ maxHunger;
+		double prob = x * hunger;
 		// g = prob/ # adj
 		// # left = 8 - # mov
 		// dec = prob/ #left
 		
-	}
+	} // end of method
+	
+	protected int probNonFoodSquares(){
+		
+		int prob = 
+		
+	}*/
 }
