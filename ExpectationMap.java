@@ -25,6 +25,9 @@ public class ExpectationMap {
 	}
 
 	protected void updateMapsPred (Bag objects, SparseGrid2D grid){
+		
+		this.decayMaps();
+		
 		for(int i = 0; i < objects.size(); i++){
 			Object o = objects.get(i);
 			if(o.getClass().equals(Prey.class)){
@@ -64,7 +67,7 @@ public class ExpectationMap {
 	
 	
 	protected void updateMapsPrey (Bag objects, SparseGrid2D grid){
-		
+		this.decayMaps();
 		
 		for(int i = 0; i < objects.size(); i++){
 			Object o = objects.get(i);

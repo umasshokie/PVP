@@ -877,23 +877,60 @@ public class BehaviorProcessor {
 		
 		return indexes;
 	}
-	protected void increaseTowardFood(int lastMeal, int numAdj, int numMov, int[]newProb, Int2D pLoc, Bag usedSquares){
+	
+	protected Bag findEmptySquareLocations(Int2D pLoc, Bag usedSquares){
+		Bag emptyLocations = new Bag();
+		
+		return emptyLocations;
+	}
+	protected void increaseTowardFood(int lastMeal, Bag movable, double[]newProb, Int2D pLoc, Bag usedSquares){
 		
 		double hunger;
 		double x = 0;
+		Bag emptyLoc = this.findEmptySquareLocations(pLoc, usedSquares);
 		int[] emptySq = findEmptySquares(pLoc, usedSquares);
 		for(int i = 0; i <emptySq.length; i++)
 			x += newProb[i];
 		
-		
+		int numMov = movable.size();
 		
 		//int x = probability of unused squares
 		
 		hunger = (double)lastMeal/ maxHunger;
 		double prob = x * hunger;
-		double g = prob/ numAdj;
+		if(prob == x){
+			for(int g = 0; g < emptyLoc.size(); g++){
+				Int2D emptySqL =  (Int2D) emptyLoc.get(g);
+				int index = this.probIndex(pLoc, emptySqL, direct);
+				newProb[index] = 0;
+			}
+		}
+		double g = prob/ numMov;
+		for(int j = 0; j < numMov; j++){
+			Int2D temp = (Int2D) movable.get(j);
+			int index = this.probIndex(pLoc, temp, direct);
+			newProb[index] = newProb[index] + g;
+		}
+		//All adjcent should get g
 		int numLeft = 8 - numMov;
 		double dec = prob/ numLeft;
+		//Find others locations in a bag
+
+		for(int k = 0; k < emptyLoc.size(); k++){
+			Int2D emptySqL =  (Int2D) emptyLoc.get(k);
+			int index = this.probIndex(pLoc, emptySqL, direct);
+			newProb[index] = newProb[index] - dec;
+		}
+		//Subtract the probability
+		//All otheres get this probability
+		
+		// Check to make sure none of the probabilities are <0
+		for(int p = 0; p< newProb.length; p++){
+			if(newProb[p] < 0){
+				//If not subtract from others. (which square)
+				newProb[p] = 0;
+			}
+		}
 		
 	} // end of method
 	
