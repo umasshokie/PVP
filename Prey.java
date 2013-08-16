@@ -20,9 +20,10 @@ private double hungerDeathMod = 1.01;
 private double repAge = 56;
 private int deathRandNum = 10000;
 private int daysLM = 28;
+private Bag seen;
 	
 	
-	Prey(SimState state){
+	Prey(SimState state, SparseGrid2D grid){
 	
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
@@ -34,6 +35,7 @@ private int daysLM = 28;
 		else
 			direction = 3;
 		vP = new VisualProcessor(state);
+		map = new ExpectationMap(grid.getWidth(), grid.getHeight());
 	}
 	
 	public void makeStoppable(Stoppable stopper){
@@ -53,8 +55,8 @@ private int daysLM = 28;
 		 return;
 	
 	 //Chance of Eating
-	// if(this.willEat(grid, state))
-		// return;
+	 if(this.willEat(grid, state))
+		return;
 	/*//Eating Food on the same location
 		if(grid.getObjectsAtLocationOfObject(this) != null && this != null){
 			int gridNum = grid.getObjectsAtLocationOfObject(this).numObjs;
@@ -118,7 +120,7 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 	
 	public void reproduce(SimState state){
 		
-		Prey p = new Prey(state);
+		Prey p = new Prey(state, grid);
 		
 		grid.setObjectLocation(p, grid.getObjectLocation(this));
 		state.schedule.scheduleRepeating(p);
@@ -145,7 +147,7 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 		
 		//System.out.println("d: " + d + " death: " + death);
 		if(death < deathRate && death != 0){
-			stop.stop();
+			this.stop.stop();
 			grid.remove(this);
 			return true;
 		}
@@ -162,7 +164,42 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 			}
 		return false;
 	}
+public void vision(SimState state, SparseGrid2D grid){
+		
+		Int2D cord = grid.getObjectLocation(this);
+		assert(cord != null);
+
+		seen = vP.sight(cord.x, cord.y, state, direction);
+		Bag locations = new Bag();
+		if(state.schedule.getTime()%2 != 0)
+			map.updateMapsPred(seen, grid);
+		
+		//map.printMaps();
+		for(int s = 0; s < seen.size(); s++){
+			
+			Int2D obLoc = grid.getObjectLocation(seen.get(s));
 	
+			locations.add(obLoc);
+			//System.out.println(" at location:" + obLoc);
+			//if(j.equals(Prey.class))
+				//System.out.println("****" + seen.get(s));
+			
+		}
+			
+		this.behaviorProb(locations, seen, state);
+		
+		//Move every timestep
+		super.move(grid, state);
+		//System.out.println("Predator Moved");
+	}// end of vision
+	
+	public void behaviorProb(Bag locs, Bag seen, SimState state){
+	
+		behavior = new BehaviorProcessor(grid);
+		double[] newProb = behavior.updateProbPrey(locs, seen, defaultProb, this, state);
+		
+		actualProb = newProb;
+	}
 	public double getRepRate(){
 		
 		return actualRepRate;
@@ -171,4 +208,5 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 	public void setRepRate(double repRate){
 		actualRepRate = repRate;
 	}
+	
 }

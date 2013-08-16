@@ -158,7 +158,7 @@ public class PVP extends SimState{
 
 		for(int i=0; i<numPred; i++)
 		{
-			Predator p = new Predator(this);
+			Predator p = new Predator(this, world);
 			
 			//Torodial random locations
 			MutableInt2D loc = new MutableInt2D();
@@ -175,7 +175,7 @@ public class PVP extends SimState{
 		
 		for(int j=0; j<numPrey; j++)
 		{
-			Prey prey = new Prey(this);
+			Prey prey = new Prey(this, world);
 			
 			//Torodial random locations
 			MutableInt2D loc = new MutableInt2D();
@@ -196,6 +196,7 @@ public class PVP extends SimState{
 	 */
 	public static void main(String[] args)
 	{
+		
 		doLoop(PVP.class, args);
 		System.exit(0);
 	}

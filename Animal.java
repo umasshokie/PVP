@@ -14,8 +14,8 @@ public abstract class Animal implements Steppable {
 	protected int age = 0;
 	protected int direction;
 	protected int lastMeal = 0;
-	protected int[] defaultProb = {25,25,25,8,8,3,3,3};
-	protected int[] actualProb = new int[8];
+	protected final double[] defaultProb = {25,25,25,8,8,3,3,3};
+	protected double[] actualProb = new double[8];
 	public final int NORTH = 0;
 	public final int SOUTH = 1;
 	public final int EAST = 2;
@@ -24,6 +24,8 @@ public abstract class Animal implements Steppable {
 	protected BehaviorProcessor behavior;
 	protected VisualProcessor vP;
 	protected Stoppable stop;
+	protected ExpectationMap map;
+	
 	
 	
 	@Override

@@ -50,6 +50,19 @@ public class ExpectationMap {
 		}
 	}// end of update maps Predator
 	
+	protected void printMaps(){
+		for(int w = 0; w < gWidth; w++){
+			for(int h = 0; h <gHeight; h++){
+				System.out.println("Food Map: " + foodLocationMap[w][h]);
+				System.out.println("Predator Map: " + predatorLocationMap[w][h]);
+				System.out.println("Conspecific Map: " + conspecificLocationMap[w][h]);
+				System.out.println("Poison Location Map: " + poisonLocationMap[w][h])
+				;
+			}
+		}
+	}
+	
+	
 	protected void updateMapsPrey (Bag objects, SparseGrid2D grid){
 		
 		

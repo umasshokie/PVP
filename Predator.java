@@ -19,8 +19,7 @@ private Bag seen;
 private int daysLM = 28;
 
 
-
-	Predator(SimState state){
+	Predator(SimState state, SparseGrid2D grid){
 		
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
@@ -32,6 +31,7 @@ private int daysLM = 28;
 		else
 			direction = 3;
 		vP = new VisualProcessor(state);
+		map = new ExpectationMap(grid.getWidth(), grid.getHeight());
 	}
 	
 	public void makeStoppable(Stoppable stopper){
@@ -134,9 +134,9 @@ private int daysLM = 28;
 		
 		
 		//System.out.println(grid.getObjectsAtLocationOfObject(this).size());
-			int gridNum = grid.getObjectsAtLocationOfObject(this).size();
+		int gridNum = grid.getObjectsAtLocationOfObject(this).size();
 			
-			assert(gridNum != 0);
+		assert(gridNum != 0);
 			
 			for(int i = 0; i < gridNum; i++){
 				Object obj = (grid.getObjectsAtLocationOfObject(this)).get(i);
@@ -155,37 +155,32 @@ private int daysLM = 28;
 		
 		System.out.println("Predator Reproduced");
 		
-		Predator p = new Predator(state);
+		Predator p = new Predator(state, grid);
 		
 		grid.setObjectLocation(p, grid.getObjectLocation(this));
 		Stoppable stop = state.schedule.scheduleRepeating(p);
 		p.makeStoppable(stop);
 	}
 	public void vision(SimState state, SparseGrid2D grid){
-		//System.out.println("Direction: " + direction);
-		//Visual Processor				
-		//System.out.println("This: " + this);
-		//System.out.println("Grid: " + grid);
-		//System.out.println("Location: " + grid.getObjectLocation(this));
+		
 		Int2D cord = grid.getObjectLocation(this);
 		assert(cord != null);
 
-		//System.out.println(this + "was at location: " + cord);
 		seen = vP.sight(cord.x, cord.y, state, direction);
 		Bag locations = new Bag();
+		if(state.schedule.getTime()%2 != 0)
+			map.updateMapsPred(seen, grid);
 		
-		//Testing Print Statements
-		//System.out.println("direction:" + direction);
-		//System.out.println("Cord of Pred:" + cord);
+		//map.printMaps();
 		for(int s = 0; s < seen.size(); s++){
 			
-			//System.out.print(s + "saw " + seen.get(s));
 			Int2D obLoc = grid.getObjectLocation(seen.get(s));
 	
 			locations.add(obLoc);
 			//System.out.println(" at location:" + obLoc);
 			//if(j.equals(Prey.class))
 				//System.out.println("****" + seen.get(s));
+			
 		}
 			
 		this.behaviorProb(locations, seen, state);
@@ -198,7 +193,7 @@ private int daysLM = 28;
 	public void behaviorProb(Bag locs, Bag seen, SimState state){
 	
 		behavior = new BehaviorProcessor(grid);
-		int[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this, state);
+		double[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this, state);
 		
 		actualProb = newProb;
 	}
