@@ -11,19 +11,22 @@ public class Prey extends Animal implements Steppable{
 	 * 
 	 */
 private static final long serialVersionUID = 1L;
-private int oldAge = 1000;
-private double deathRate = .0001;
-private double actualRepRate = .000001;
-private double agingDeathMod = 1.0001;
-private int randomRepoNumb = 1000;
-private double hungerDeathMod = 1.01;
-private double repAge = 56;
-private int deathRandNum = 10000;
-private int daysLM = 28;
+private static int oldAge;
+private static double deathRate;
+private static int deathRandNum;
+private static double agingDeathMod;
+private static double hungerDeathMod;
+private static int lastMealLow;
+private static int lastMealMed;
+private static int lastMealHigh;
+private static double repAge;
+private static int repRandNum;
+private static double defaultRepRate;
+private static double actualRepRate;
 private Bag seen;
+
 	
-	
-	Prey(SimState state, SparseGrid2D grid){
+	Prey(SimState state, SparseGrid2D grid, int num){
 	
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
@@ -35,15 +38,34 @@ private Bag seen;
 		else
 			direction = 3;
 		vP = new VisualProcessor(state);
-		map = new ExpectationMap(grid.getWidth(), grid.getHeight());
+		map = new ExpectationMap(grid.getWidth(), grid.getHeight(), expectMapDecayRate);
+		maxHunger = 30;
+		maxSocial = 30;
+		actualRepRate = defaultRepRate;
+		ID = "R" + num;
 	}
+	protected final static void initializePrey(int maxH, int old,
+			double dR, int dRN, double agDM, double hDM, int lmL, int lmM, int lmH, int rA, double dRR, int rRN ){
 	
+		maxHunger = maxH;
+		oldAge = old;
+		deathRate = dR;
+		deathRandNum = dRN;
+		agingDeathMod = agDM;
+		hungerDeathMod = hDM;
+		lastMealLow = lmL;
+		lastMealMed = lmM;
+		lastMealHigh = lmH;
+		repAge = rA;
+		defaultRepRate = dRR;
+		repRandNum = rRN;
+		
+	}
 	public void makeStoppable(Stoppable stopper){
 		stop = stopper;
 	}
 	@Override
 	public void step(SimState state) {
-		// TODO Auto-generated method stub
 	 super.step(state);
 	
 	 //Death Chance
@@ -57,36 +79,28 @@ private Bag seen;
 	 //Chance of Eating
 	 if(this.willEat(grid, state))
 		return;
-	/*//Eating Food on the same location
-		if(grid.getObjectsAtLocationOfObject(this) != null && this != null){
-			int gridNum = grid.getObjectsAtLocationOfObject(this).numObjs;
-			for(int i = 0; i < gridNum; i++){
-				Object obj = (grid.getObjectsAtLocationOfObject(this)).get(i);
-				if(obj.getClass().equals(Food.class) && obj != null){
-					this.eat(obj);
-					break;
-				}// end of if
-			} // end of for loop
-		}// end of if statement*/
-		
-		//Moving every time
-		super.move(grid, state);
+	
+	 //See & process
+	 this.vision(state, grid);
 			
-
-	 
 	}
-public boolean willEat(SparseGrid2D grid, SimState state){
+	
+	//Method which determines whether or not the Prey will eat on location.
+	public boolean willEat(SparseGrid2D grid, SimState state){
+		
+		if(lastMeal < lastMealLow)
+			return false;
+		else if(lastMeal < lastMealMed){
+			if(state.schedule.getTime()%1 == 0)
+				return false;
+		}
 		
 		//Eating Prey on the same location
-		assert(grid.getObjectsAtLocationOfObject(this).size() != 0);
 		assert(grid.getObjectsAtLocationOfObject(this) !=null);
-		assert(this != null);
-		assert(grid !=null);
 		
-		System.out.println(grid.getObjectsAtLocationOfObject(this).size());
+		
 			int gridNum = grid.getObjectsAtLocationOfObject(this).size();
 			
-			assert(gridNum != 0);
 			
 			for(int i = 0; i < gridNum; i++){
 				Object obj = (grid.getObjectsAtLocationOfObject(this)).get(i);
@@ -100,6 +114,7 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 		return false;
 	}
 
+	//Method for actually eating/ removing food from the grid.
 	public void eat(Object p){
 		
 		//System.out.println(p);
@@ -107,8 +122,9 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 			if(food.isDiseased())
 				this.setDisease(true);
 			//System.out.println(this + " ate " + p);
+			food.eat();
 			lastMeal = 0;
-			grid.remove(p);
+			
 			//System.out.println("Food is removed");
 		
 	}
@@ -120,11 +136,11 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 	
 	public void reproduce(SimState state){
 		
-		Prey p = new Prey(state, grid);
-		
+		Prey p = new Prey(state, grid, numPrey + 1);
+		numPrey++;
 		grid.setObjectLocation(p, grid.getObjectLocation(this));
-		state.schedule.scheduleRepeating(p);
-		
+		Stoppable stop = state.schedule.scheduleRepeating(p);
+		p.makeStoppable(stop);
 	}
 	
 	public boolean isDiseased(){
@@ -137,17 +153,25 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 	 		deathRate = deathRate * agingDeathMod;
 	 	
 	 	//Last meal, more likely to die
-	 	if(lastMeal > daysLM)
+	 	if(lastMeal > lastMealHigh)
 			deathRate = deathRate * hungerDeathMod;
 		//System.out.println("deathRate: " + deathRate);
-		
-	 // Death Rate
+	 	
+	 	if(lastMeal > lastMealHigh){
+			 stop.stop();
+			 numPrey--;
+			 grid.remove(this);
+			 return true;
+		 }
+	 	
+	 	// Death Rate
 		double d = state.random.nextInt(deathRandNum);
 		double death = d/deathRandNum;
 		
 		//System.out.println("d: " + d + " death: " + death);
 		if(death < deathRate && death != 0){
 			this.stop.stop();
+			numPrey--;
 			grid.remove(this);
 			return true;
 		}
@@ -156,15 +180,15 @@ public boolean willEat(SparseGrid2D grid, SimState state){
 	
 	public boolean iReproduce(SimState state){
 	// Reproduction Rate
-		double r = state.random.nextInt(randomRepoNumb);
-		double repo = r/randomRepoNumb;
+		double r = state.random.nextInt(repRandNum);
+		double repo = r/repRandNum;
 		if(repo <= actualRepRate && age >= repAge){
 			this.reproduce(state);
 			return true;
 			}
 		return false;
 	}
-public void vision(SimState state, SparseGrid2D grid){
+	public void vision(SimState state, SparseGrid2D grid){
 		
 		Int2D cord = grid.getObjectLocation(this);
 		assert(cord != null);

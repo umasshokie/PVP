@@ -5,6 +5,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
 import sim.field.grid.SparseGrid2D;
+import sim.util.Bag;
 import sim.util.Int2D;
 
 public abstract class Animal implements Steppable {
@@ -14,19 +15,32 @@ public abstract class Animal implements Steppable {
 	protected int age = 0;
 	protected int direction;
 	protected int lastMeal = 0;
-	protected final double[] defaultProb = {25,25,25,8,8,3,3,3};
+	protected final static double[] defaultProb = {25,25,25,8,8,3,3,3};
 	protected double[] actualProb = new double[8];
-	public final int NORTH = 0;
-	public final int SOUTH = 1;
-	public final int EAST = 2;
-	public final int WEST = 3;
+	public final static int NORTH = 0;
+	public final static int SOUTH = 1;
+	public final static int EAST = 2;
+	public final static int WEST = 3;
+	public static int numPrey;
+	public static int numPredator;
+	protected static double expectMapDecayRate;
 	protected int velocity = 1;
 	protected BehaviorProcessor behavior;
 	protected VisualProcessor vP;
 	protected Stoppable stop;
 	protected ExpectationMap map;
+	protected static int maxHunger;
+	protected static int maxSocial;
+	protected int lastSocial = 0;
+	protected int directChangeTotal = 0;
+	protected String ID;
+	protected Bag allObjects = new Bag();
 	
-	
+	protected final static void initialize(int prey, int pred, double exMap){
+		numPrey = prey;
+		numPredator = pred;
+		expectMapDecayRate = exMap;
+	}
 	
 	@Override
 	public void step(SimState state) {
@@ -36,10 +50,12 @@ public abstract class Animal implements Steppable {
 		grid = pvp.world;
 		age++;
 		lastMeal++;
+		lastSocial++;
 		//Start of every step uses default movement
 		actualProb = defaultProb;
 		vP = new VisualProcessor(state);
 		
+		System.out.println("TimeStep: " + state.schedule.getTime() + " Prey: " + numPrey + " Predator: " + numPredator);
 		
 	}
 
@@ -69,41 +85,57 @@ public abstract class Animal implements Steppable {
 				if (choice < actualProb[0]){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4]+ actualProb[5])){
 					grid.setObjectLocation(this, grid.tx(xCord-velocity), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4]+ actualProb[5] + actualProb[6])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6] + actualProb[7])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord -velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 			
@@ -113,41 +145,57 @@ public abstract class Animal implements Steppable {
 				if (choice < actualProb[0]){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord - velocity));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord + velocity));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord- velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord - velocity));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6] + actualProb[7])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord  + velocity));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 			
@@ -156,41 +204,57 @@ public abstract class Animal implements Steppable {
 				if (choice < actualProb[0]){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6] + actualProb[7])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord  + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 			
@@ -200,41 +264,57 @@ public abstract class Animal implements Steppable {
 				if (choice < actualProb[0]){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord + velocity));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2])){
 					grid.setObjectLocation(this, grid.tx(xCord + velocity), grid.ty(yCord - velocity));
 					this.direction = EAST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord + velocity));
 					this.direction = NORTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4])){
 					grid.setObjectLocation(this, grid.tx(xCord), grid.ty(yCord - velocity));
 					this.direction = SOUTH;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord + velocity));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				else if (choice < (actualProb[0] + actualProb[1] + actualProb[2] + actualProb[3] + actualProb[4] + actualProb[5] + actualProb[6] + actualProb[7])){
 					grid.setObjectLocation(this, grid.tx(xCord - velocity), grid.ty(yCord  - velocity));
 					this.direction = WEST;
+					if(facing != direction)
+						directChangeTotal++;
 					break;
 				}
 				

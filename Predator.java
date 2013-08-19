@@ -7,19 +7,24 @@ import sim.util.Int2D;
 
 public class Predator extends Animal implements Steppable{
 
-private int oldAge = 1000;
-private double deathRate = .0001;
-private double actualRepRate = .00001;
-private double agingDeathMod = 1.0001;
-private double hungerDeathMod = 1.01;
-private int repAge = 56;
-private int deathRandNum = 10000;
-private int repRandNum = 10000;
+private static int oldAge;
+private static double deathRate;
+private static int deathRandNum;
+private static double agingDeathMod;
+private static double hungerDeathMod;
+private static int lastMealLow;
+private static int lastMealMed;
+private static int lastMealHigh;
+private static int repAge;
+private static int repRandNum;
+private static double actualRepRate;
+private static double defaultRepRate;
 private Bag seen;
-private int daysLM = 28;
 
 
-	Predator(SimState state, SparseGrid2D grid){
+
+	
+	Predator(SimState state, SparseGrid2D grid, int num){
 		
 		int directionNum= state.random.nextInt(3);
 		if(directionNum == 0)
@@ -31,7 +36,29 @@ private int daysLM = 28;
 		else
 			direction = 3;
 		vP = new VisualProcessor(state);
-		map = new ExpectationMap(grid.getWidth(), grid.getHeight());
+		map = new ExpectationMap(grid.getWidth(), grid.getHeight(), expectMapDecayRate);
+		maxHunger = 30;
+		maxSocial = 50;
+		actualRepRate = defaultRepRate;
+		ID = "F" + num;
+	}
+	
+	protected final static void initializePred(int maxH, int old,
+			double dR, int dRN, double agDM, double hDM, int lmL, int lmM, int lmH, int rA, double dRR, int rRN ){
+	
+		maxHunger = maxH;
+		oldAge = old;
+		deathRate = dR;
+		deathRandNum = dRN;
+		agingDeathMod = agDM;
+		hungerDeathMod = hDM;
+		lastMealLow = lmL;
+		lastMealMed = lmM;
+		lastMealHigh = lmH;
+		repAge = rA;
+		defaultRepRate = dRR;
+		repRandNum = rRN;
+		
 	}
 	
 	public void makeStoppable(Stoppable stopper){
@@ -41,6 +68,8 @@ private int daysLM = 28;
 	public void step(SimState state) {
 		// TODO Auto-generated method stub
 		super.step(state);
+		
+		// Timesteps since last social interaction
 		//System.out.println("Last Meal: " + lastMeal + " timesteps");
 		
 		//Death Calculations
@@ -60,22 +89,32 @@ private int daysLM = 28;
 		//Will I eat?
 		if(this.willEat(grid, state))
 			return;
+		
+		//End of Step, print out tests
+		System.out.print(ID);
+		System.out.print(", Testing Expectation Map goes here");
+		System.out.print(", Hunger (Days from Last Meal): " + lastMeal);
+		System.out.print(", Social: " + lastSocial);
+		System.out.print(", DirectionChangeTotal: " + directChangeTotal);
+		
 
-		
-		
 	}
 
 	//Method that allows Predator to kill its Prey
 	public void eat(Object p){
-		
+		assert (p != null);
 		if(p.getClass().equals(Prey.class)){
+		
 			Prey prey = (Prey) p;
+			assert(prey != null);
 			if(prey.isDiseased())
 				this.setDisease(true);
 			lastMeal = 0;
-			//System.out.println(this + " ate " + p);
 			prey.stop.stop();
+			numPrey--;
+			System.out.print(", " + ID + " ate Prey");
 			grid.remove(prey);
+
 	
 			
 		}
@@ -91,10 +130,15 @@ private int daysLM = 28;
 		 	deathRate = deathRate * agingDeathMod;
 		 	
 		 //Last meal, more likely to die
-		 if(lastMeal > daysLM)
+		 if(lastMeal > lastMealMed)
 			deathRate = deathRate * hungerDeathMod;
 		//System.out.println("deathRate: " + deathRate);
-			
+		 if(lastMeal > lastMealHigh){
+			 stop.stop();
+			 numPredator--;
+			 grid.remove(this);
+			 return true;
+		 }
 		 // Death Rate
 		double d = state.random.nextInt(deathRandNum);
 		double death = d/deathRandNum;
@@ -105,11 +149,14 @@ private int daysLM = 28;
 		if(death < deathRate){
 			//System.out.println(this + " Died");
 			stop.stop();
+			numPredator--;
 			grid.remove(this);
 			
 				
 			return true;
 		}
+		
+		
 		return false;
 	}
 	
@@ -128,6 +175,13 @@ private int daysLM = 28;
 	}
 	
 	public boolean willEat(SparseGrid2D grid, SimState state){
+		
+		if(lastMeal < lastMealLow)
+			return false;
+		else if(lastMeal < lastMealMed){
+			if(state.schedule.getTime()%1 == 0)
+				return false;
+		}
 		
 		//Eating Prey on the same location
 		assert(grid.getObjectsAtLocationOfObject(this) !=null);
@@ -155,8 +209,8 @@ private int daysLM = 28;
 		
 		System.out.println("Predator Reproduced");
 		
-		Predator p = new Predator(state, grid);
-		
+		Predator p = new Predator(state, grid, numPredator + 1);
+		numPredator++;
 		grid.setObjectLocation(p, grid.getObjectLocation(this));
 		Stoppable stop = state.schedule.scheduleRepeating(p);
 		p.makeStoppable(stop);
@@ -187,13 +241,14 @@ private int daysLM = 28;
 		
 		//Move every timestep
 		super.move(grid, state);
+		
 		//System.out.println("Predator Moved");
 	}// end of vision
 	
 	public void behaviorProb(Bag locs, Bag seen, SimState state){
 	
 		behavior = new BehaviorProcessor(grid);
-		double[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this, state);
+		double[] newProb = behavior.updateProbPred(locs, seen, defaultProb, this, state, maxHunger);
 		
 		actualProb = newProb;
 	}

@@ -6,7 +6,7 @@ import sim.util.Bag;
 
 public class ExpectationMap {
 	
-	protected double decayRate = .1;
+	protected double decayRate;
 	protected double[][] foodLocationMap;
 	protected double[][] predatorLocationMap;
 	protected double[][] conspecificLocationMap;
@@ -14,7 +14,7 @@ public class ExpectationMap {
 	protected int gWidth;
 	protected int gHeight;
 	
-	public ExpectationMap(int gridWidth, int gridHeight){
+	public ExpectationMap(int gridWidth, int gridHeight, double decay){
 		foodLocationMap = new double[gridWidth][gridHeight];
 		predatorLocationMap = new double[gridWidth][gridHeight];
 		conspecificLocationMap = new double[gridWidth][gridHeight];
@@ -22,6 +22,8 @@ public class ExpectationMap {
 		
 		gWidth = gridWidth;
 		gHeight = gridHeight;
+		
+		decayRate = decay;
 	}
 
 	protected void updateMapsPred (Bag objects, SparseGrid2D grid){

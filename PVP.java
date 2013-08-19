@@ -12,13 +12,14 @@ public class PVP extends SimState{
 	//world
 	public SparseGrid2D world;
 	//dimensions of the world
-	private final int gridWidth;
-	private final int gridHeight;
+	private static int gridWidth;
+	private static int gridHeight;
 	private final int gridArea;
 	//Rates and Numbers
 	private final double foodPopRate = .4;
-	private short numPred;
-	private short numPrey;
+	private static int numPred;
+	private static int numPrey;
+	private static double expectationMapDecay;
 	private int numFood;
 	//Number of Clusters
 	private final int clusters;
@@ -28,10 +29,10 @@ public class PVP extends SimState{
 	public PVP(long seed)
 	{
 		super(seed);
-		gridWidth = 10;
-		gridHeight = 10;
-		numPred = 1;
-		numPrey = 7;
+		//gridWidth = 10;
+		//gridHeight = 10;
+		//numPred = 2;
+		//numPrey = 10;
 		clusters = 20;
 		gridArea = (gridWidth*gridHeight);
 		numFood = (int) (gridArea * foodPopRate);
@@ -45,7 +46,7 @@ public class PVP extends SimState{
 		super.start();
 		world = new SparseGrid2D(gridWidth, gridHeight);
 		//grid.clear();
-		
+		Animal.initialize(numPrey, numPred, expectationMapDecay);
 		//ONLY RANDOM NUMBER GENERATOR
 		MersenneTwisterFast twister = new MersenneTwisterFast();
 		
@@ -66,6 +67,8 @@ public class PVP extends SimState{
 				
 				
 			world.setObjectLocation(p, loc.x, loc.y);
+			Stoppable stop = schedule.scheduleRepeating(p);
+			p.makeStoppable(stop);
 		}
 			
 			//Expanding on these sets
@@ -89,7 +92,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed N");
 					if(world.getObjectsAtLocation(xcord, ycord + 1) == null){
 						world.setObjectLocation(p, xcord, ycord + 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						ycord = ycord + 1;
 					}	
 							
@@ -100,7 +104,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed S");
 					if(world.getObjectsAtLocation(xcord, ycord - 1) == null){
 						world.setObjectLocation(p, xcord, ycord - 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						ycord = ycord - 1;
 					}	
 				}
@@ -109,7 +114,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed E");
 					if(world.getObjectsAtLocation(xcord + 1, ycord) == null){
 						world.setObjectLocation(p, xcord + 1, ycord);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						xcord = xcord +1;
 					}	
 				}
@@ -118,7 +124,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed NE");
 					if(world.getObjectsAtLocation(xcord + 1, ycord + 1) == null){
 						world.setObjectLocation(p, xcord + 1, ycord + 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						xcord = xcord + 1;
 						ycord = ycord + 1;
 					}	
@@ -128,7 +135,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed SE");
 					if(world.getObjectsAtLocation(xcord + 1, ycord - 1) == null){
 						world.setObjectLocation(p, xcord + 1, ycord - 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						xcord = xcord + 1;
 						ycord = ycord - 1;
 					}	
@@ -138,7 +146,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed NW");
 					if(world.getObjectsAtLocation(xcord - 1, ycord + 1) == null){
 						world.setObjectLocation(p, xcord - 1, ycord + 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						xcord = xcord - 1;
 						ycord = ycord + 1;
 					}	
@@ -148,7 +157,8 @@ public class PVP extends SimState{
 					//System.out.println(p + " Placed SW");
 					if(world.getObjectsAtLocation(xcord - 1, ycord - 1) == null){
 						world.setObjectLocation(p, xcord - 1, ycord - 1);
-						schedule.scheduleRepeating(p);
+						Stoppable stop = schedule.scheduleRepeating(p);
+						p.makeStoppable(stop);
 						xcord = xcord - 1;
 						ycord = ycord - 1;
 					}// end of if	
@@ -158,7 +168,7 @@ public class PVP extends SimState{
 
 		for(int i=0; i<numPred; i++)
 		{
-			Predator p = new Predator(this, world);
+			Predator p = new Predator(this, world, i);
 			
 			//Torodial random locations
 			MutableInt2D loc = new MutableInt2D();
@@ -175,7 +185,7 @@ public class PVP extends SimState{
 		
 		for(int j=0; j<numPrey; j++)
 		{
-			Prey prey = new Prey(this, world);
+			Prey prey = new Prey(this, world, j);
 			
 			//Torodial random locations
 			MutableInt2D loc = new MutableInt2D();
@@ -186,7 +196,7 @@ public class PVP extends SimState{
 			Stoppable stop = schedule.scheduleRepeating(prey);
 			prey.makeStoppable(stop);
 			
-			System.out.println(world.getObjectLocation(prey));
+			//System.out.println(world.getObjectLocation(prey));
 		}
 	}
 	
@@ -196,6 +206,52 @@ public class PVP extends SimState{
 	 */
 	public static void main(String[] args)
 	{
+
+		//Parameters get assigned here
+		//World size
+		gridWidth = Integer.parseInt(args[0]);
+		gridHeight = Integer.parseInt(args[1]);
+		//Number of Prey and Predator
+		numPrey = Integer.parseInt(args[2]);
+		numPred = Integer.parseInt(args[3]);
+		//Expectation Decay Rate
+		expectationMapDecay = Double.parseDouble(args[4]);
+		//Prey Only Parameters
+		int preyMaxHunger = Integer.parseInt(args[5]);
+		int preyOldAge = Integer.parseInt(args[6]);
+		double preyDeathRate = Double.parseDouble(args[7]);
+		int preyDeathRandNum = Integer.parseInt(args[8]);
+		double preyAgingDeathMod = Double.parseDouble(args[9]);
+		double preyHungerDeathMod = Double.parseDouble(args[10]);
+		int preyLastMealLow = Integer.parseInt(args[11]);
+		int preyLastMealMed = Integer.parseInt(args[12]);
+		int preyLastMealHigh = Integer.parseInt(args[13]);
+		int preyRepAge = Integer.parseInt(args[14]);
+		double preyDefaultRepRate = Double.parseDouble(args[15]);
+		int preyRepRandNum = Integer.parseInt(args[16]);
+		
+		
+		// Predator Only Parameters
+		int predMaxHunger = Integer.parseInt(args[17]);
+		int predOldAge = Integer.parseInt(args[18]);
+		double predDeathRate = Double.parseDouble(args[19]);
+		int predDeathRandNum = Integer.parseInt(args[20]);
+		double predAgingDeathMod = Double.parseDouble(args[21]);
+		double predHungerDeathMod = Double.parseDouble(args[22]);
+		int predLastMealLow = Integer.parseInt(args[23]);
+		int predLastMealMed = Integer.parseInt(args[24]);
+		int predLastMealHigh = Integer.parseInt(args[25]);
+		int predRepAge = Integer.parseInt(args[26]);
+		double predDefaultRepRate = Double.parseDouble(args[27]);
+		int predRepRandNum = Integer.parseInt(args[28]);
+		
+		Prey.initializePrey(preyMaxHunger, preyOldAge, preyDeathRate, preyDeathRandNum, preyAgingDeathMod,
+				preyHungerDeathMod, preyLastMealLow, preyLastMealMed, preyLastMealHigh, preyRepAge,
+				preyDefaultRepRate, preyRepRandNum);
+		
+		Predator.initializePred(predMaxHunger, predOldAge, predDeathRate, predDeathRandNum, predAgingDeathMod,
+				predHungerDeathMod, predLastMealLow, predLastMealMed, predLastMealHigh, predRepAge,
+				predDefaultRepRate, predRepRandNum);
 		
 		doLoop(PVP.class, args);
 		System.exit(0);

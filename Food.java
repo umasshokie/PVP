@@ -13,6 +13,7 @@ public class Food implements Steppable {
 	private int repRandNum = 10000;
 	private boolean diseased = false;
 	public SparseGrid2D grid;
+	protected Stoppable stop;
 
 	
 	@Override
@@ -21,6 +22,9 @@ public class Food implements Steppable {
 		PVP pvp = (PVP)state;
 		
 		grid = pvp.world;
+		
+		//Slowly grows back
+		amount += .05;
 		
 		//Chance of disease
 		this.diseaseChance(pvp);
@@ -71,26 +75,52 @@ public class Food implements Steppable {
 	
 			
 			if (direction == 0){
-				grid.setObjectLocation(p, cord.x, cord.y + 1);		
+				grid.setObjectLocation(p, cord.x, cord.y + 1);
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 1){
 				grid.setObjectLocation(p, cord.x, cord.y - 1);	
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 2){
-				grid.setObjectLocation(p, cord.x + 1, cord.y);			
+				grid.setObjectLocation(p, cord.x + 1, cord.y);	
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 3){
-				grid.setObjectLocation(p, cord.x + 1, cord.y + 1);		
+				grid.setObjectLocation(p, cord.x + 1, cord.y + 1);
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 4){
-				grid.setObjectLocation(p, cord.x + 1, cord.y - 1);		
+				grid.setObjectLocation(p, cord.x + 1, cord.y - 1);	
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 5){
 				grid.setObjectLocation(p, cord.x - 1, cord.y + 1);
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 			else if (direction == 6){
 				grid.setObjectLocation(p, cord.x - 1, cord.y - 1);
+				Stoppable stop = state.schedule.scheduleRepeating(p);
+				p.makeStoppable(stop);
 			}
 		}// end of if
 	}// end of spread
+	
+	public void makeStoppable(Stoppable stopper){
+		stop = stopper;
+	}
+	
+	public void eat(){
+		amount = amount - .6;
+		if(amount <0){
+			grid.remove(this);
+			this.stop.stop();
+		}
+	}
 }// end of class
