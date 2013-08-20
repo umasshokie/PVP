@@ -55,7 +55,7 @@ public abstract class Animal implements Steppable {
 		actualProb = defaultProb;
 		vP = new VisualProcessor(state);
 		
-		System.out.println("TimeStep: " + state.schedule.getTime() + " Prey: " + numPrey + " Predator: " + numPredator);
+		System.out.print(state.schedule.getTime() + ", " + numPrey + ", " + numPredator);
 		
 	}
 

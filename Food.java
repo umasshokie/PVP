@@ -7,7 +7,7 @@ import sim.util.Int2D;
 public class Food implements Steppable {
 
 	private double amount = 1.0;
-	private double diseasePr = .00005;
+	private double diseasePr = .005;
 	private int diseaseRandNum = 10000;
 	private double repPr = .001;
 	private int repRandNum = 10000;
@@ -117,7 +117,7 @@ public class Food implements Steppable {
 	}
 	
 	public void eat(){
-		amount = amount - .6;
+		amount = amount - .9;
 		if(amount <0){
 			grid.remove(this);
 			this.stop.stop();

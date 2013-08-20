@@ -73,16 +73,23 @@ private Bag seen;
 		 return;
 		
 	 //Reproduction Chance
-	 if(this.iReproduce(state))
+	 else if(this.iReproduce(state))
 		 return;
 	
 	 //Chance of Eating
-	 if(this.willEat(grid, state))
+	 else if(this.willEat(grid, state))
 		return;
 	
 	 //See & process
-	 this.vision(state, grid);
-			
+	 else 
+		 this.vision(state, grid);
+		
+	//End of Step, print out tests
+			System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
 	}
 	
 	//Method which determines whether or not the Prey will eat on location.
@@ -153,7 +160,7 @@ private Bag seen;
 	 		deathRate = deathRate * agingDeathMod;
 	 	
 	 	//Last meal, more likely to die
-	 	if(lastMeal > lastMealHigh)
+	 	if(lastMeal > lastMealMed)
 			deathRate = deathRate * hungerDeathMod;
 		//System.out.println("deathRate: " + deathRate);
 	 	

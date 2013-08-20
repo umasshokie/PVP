@@ -40,6 +40,14 @@ public class PVP extends SimState{
 		clust = new int[clusters][2];
 	}
 	
+	public static void initializeUI(int gridW, int gridH, int prey, int pred, double exMap){
+		gridWidth = gridW;
+		gridHeight = gridH;
+		numPrey = prey;
+		numPred = pred;
+		expectationMapDecay = exMap;
+	}
+	
 	//Populates the world with food, prey and predators
 	public void start()
 	{

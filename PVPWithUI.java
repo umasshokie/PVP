@@ -35,6 +35,56 @@ public class PVPWithUI extends GUIState {
 	
 		// creates graphical console which allows to 
 		// us to stop start, etc.
+
+		//Parameters get assigned here
+		//World size
+		int gridWidth = Integer.parseInt(args[0]);
+		int gridHeight = Integer.parseInt(args[1]);
+		
+		//Number of Prey and Predator
+		int numPrey = Integer.parseInt(args[2]);
+		int numPred = Integer.parseInt(args[3]);
+		//Expectation Decay Rate
+		double expectationMapDecay = Double.parseDouble(args[4]);
+		
+		PVP.initializeUI(gridWidth, gridHeight, numPrey, numPred, expectationMapDecay);
+		
+		//Prey Only Parameters
+		int preyMaxHunger = Integer.parseInt(args[5]);
+		int preyOldAge = Integer.parseInt(args[6]);
+		double preyDeathRate = Double.parseDouble(args[7]);
+		int preyDeathRandNum = Integer.parseInt(args[8]);
+		double preyAgingDeathMod = Double.parseDouble(args[9]);
+		double preyHungerDeathMod = Double.parseDouble(args[10]);
+		int preyLastMealLow = Integer.parseInt(args[11]);
+		int preyLastMealMed = Integer.parseInt(args[12]);
+		int preyLastMealHigh = Integer.parseInt(args[13]);
+		int preyRepAge = Integer.parseInt(args[14]);
+		double preyDefaultRepRate = Double.parseDouble(args[15]);
+		int preyRepRandNum = Integer.parseInt(args[16]);
+		
+		
+		// Predator Only Parameters
+		int predMaxHunger = Integer.parseInt(args[17]);
+		int predOldAge = Integer.parseInt(args[18]);
+		double predDeathRate = Double.parseDouble(args[19]);
+		int predDeathRandNum = Integer.parseInt(args[20]);
+		double predAgingDeathMod = Double.parseDouble(args[21]);
+		double predHungerDeathMod = Double.parseDouble(args[22]);
+		int predLastMealLow = Integer.parseInt(args[23]);
+		int predLastMealMed = Integer.parseInt(args[24]);
+		int predLastMealHigh = Integer.parseInt(args[25]);
+		int predRepAge = Integer.parseInt(args[26]);
+		double predDefaultRepRate = Double.parseDouble(args[27]);
+		int predRepRandNum = Integer.parseInt(args[28]);
+		
+		Prey.initializePrey(preyMaxHunger, preyOldAge, preyDeathRate, preyDeathRandNum, preyAgingDeathMod,
+				preyHungerDeathMod, preyLastMealLow, preyLastMealMed, preyLastMealHigh, preyRepAge,
+				preyDefaultRepRate, preyRepRandNum);
+		
+		Predator.initializePred(predMaxHunger, predOldAge, predDeathRate, predDeathRandNum, predAgingDeathMod,
+				predHungerDeathMod, predLastMealLow, predLastMealMed, predLastMealHigh, predRepAge,
+				predDefaultRepRate, predRepRandNum);
 		PVPWithUI vid = new PVPWithUI();
 		Console c = new Console(vid);
 		c.setVisible(true);

@@ -73,29 +73,48 @@ private Bag seen;
 		//System.out.println("Last Meal: " + lastMeal + " timesteps");
 		
 		//Death Calculations
-		if(this.iDie(state))
+		if(this.iDie(state)){
+			System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
 			return;
-			
+		}
 		
 		//Reproduction Calculations
-		else if(this.iReproduce(state))
+		else if(this.iReproduce(state)){
+			System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
 			return;
+		}
+		
+		//Will I eat?
+		else if(this.willEat(grid, state)){
+			System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
+			return;
+		}
 		
 		//Visual Processor
 		else
 			this.vision(state, grid);
 			
 		
-		//Will I eat?
-		if(this.willEat(grid, state))
-			return;
+	
 		
 		//End of Step, print out tests
-		System.out.print(ID);
-		System.out.print(", Testing Expectation Map goes here");
-		System.out.print(", Hunger (Days from Last Meal): " + lastMeal);
-		System.out.print(", Social: " + lastSocial);
-		System.out.print(", DirectionChangeTotal: " + directChangeTotal);
+		System.out.print(", " + ID);
+		map.printMaps();
+		System.out.print(", " + lastMeal);
+		System.out.print(", " + lastSocial);
+		System.out.print(", " + directChangeTotal + "\n");
 		
 
 	}
@@ -112,7 +131,7 @@ private Bag seen;
 			lastMeal = 0;
 			prey.stop.stop();
 			numPrey--;
-			System.out.print(", " + ID + " ate Prey");
+			//System.out.print(", " + ID + " ate Prey");
 			grid.remove(prey);
 
 	
@@ -178,6 +197,7 @@ private Bag seen;
 		
 		if(lastMeal < lastMealLow)
 			return false;
+		
 		else if(lastMeal < lastMealMed){
 			if(state.schedule.getTime()%1 == 0)
 				return false;

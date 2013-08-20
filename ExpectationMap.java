@@ -56,15 +56,53 @@ public class ExpectationMap {
 	}// end of update maps Predator
 	
 	protected void printMaps(){
+		int nonZeroF = 0;
+		int memoryValueF = 0;
+		int nonZeroP = 0;
+		int memoryValueP = 0;
+		int nonZeroC = 0;
+		int memoryValueC = 0;
+		int nonZeroX = 0;
+		int memoryValueX = 0;
 		for(int w = 0; w < gWidth; w++){
 			for(int h = 0; h <gHeight; h++){
-				System.out.println("Food Map: " + foodLocationMap[w][h]);
-				System.out.println("Predator Map: " + predatorLocationMap[w][h]);
-				System.out.println("Conspecific Map: " + conspecificLocationMap[w][h]);
-				System.out.println("Poison Location Map: " + poisonLocationMap[w][h])
-				;
+				
+				if(foodLocationMap[w][h] != 0){
+					nonZeroF++;
+					memoryValueF += foodLocationMap[w][h];
+				}
+				if(conspecificLocationMap[w][h] != 0){
+					nonZeroC++;
+					memoryValueC += conspecificLocationMap[w][h];
+				}	
+				if(predatorLocationMap[w][h] != 0){
+					nonZeroP++;
+					memoryValueP += predatorLocationMap[w][h];
+				}
+				if(poisonLocationMap[w][h] != 0){
+					nonZeroX++;
+					memoryValueX += poisonLocationMap[w][h];
+				}
+				
 			}
-		}
+		}// end of for loops
+		
+		int gArea = gWidth * gHeight;
+		double foodNonZero = (double)nonZeroF/gArea;
+		double foodMemory = (double)memoryValueF/gArea;
+		System.out.print(", " + foodNonZero + ", " + foodMemory);
+		
+		double conspecificNonZero = (double)nonZeroC/gArea;
+		double conspecificMemory = (double)memoryValueC/gArea;
+		System.out.print(", " + conspecificNonZero + ", " + conspecificMemory);
+		
+		double predatorNonZero = (double)nonZeroP/gArea;
+		double predatorMemory = (double)memoryValueP/gArea;
+		System.out.print(", " + predatorNonZero + ", " + predatorMemory);
+		
+		double poisonNonZero = (double)nonZeroX/gArea;
+		double poisonMemory = (double)memoryValueX/gArea;
+		System.out.print(", " + poisonNonZero + ", " + poisonMemory);
 	}
 	
 	
