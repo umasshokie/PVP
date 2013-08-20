@@ -98,7 +98,8 @@ private Bag seen;
 			map.printMaps();
 			System.out.print(", " + lastMeal);
 			System.out.print(", " + lastSocial);
-			System.out.print(", " + directChangeTotal + "\n");
+			System.out.print(", " + directChangeTotal);
+			System.out.print(", " + "Predator Ate" + "\n");
 			return;
 		}
 		
@@ -131,7 +132,6 @@ private Bag seen;
 			lastMeal = 0;
 			prey.stop.stop();
 			numPrey--;
-			//System.out.print(", " + ID + " ate Prey");
 			grid.remove(prey);
 
 	

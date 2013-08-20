@@ -69,17 +69,33 @@ private Bag seen;
 	 super.step(state);
 	
 	 //Death Chance
-	 if(this.iDie(state))
+	 if(this.iDie(state)){
+		 System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
 		 return;
-		
+	 }
 	 //Reproduction Chance
-	 else if(this.iReproduce(state))
+	 else if(this.iReproduce(state)){
+		 System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal + "\n");
 		 return;
-	
+	 }
 	 //Chance of Eating
-	 else if(this.willEat(grid, state))
+	 else if(this.willEat(grid, state)){
+		 System.out.print(", " + ID);
+			map.printMaps();
+			System.out.print(", " + lastMeal);
+			System.out.print(", " + lastSocial);
+			System.out.print(", " + directChangeTotal);
+			System.out.print(", " + "Prey ate" + "\n");
 		return;
-	
+	 }
 	 //See & process
 	 else 
 		 this.vision(state, grid);

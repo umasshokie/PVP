@@ -55,6 +55,15 @@ public class BehaviorProcessor {
 			}
 		}
 
+		if(fLocations.size() == 1){
+			Bag zeroIndexes = new Bag();
+			zeroIndexes = this.findEmptySquareLocations(predator.grid.getObjectLocation(predator), fLocations);
+			Int2D food = (Int2D) fLocations.get(0);
+			newProb[this.probIndex(predator.grid.getObjectLocation(predator), food, predator.direction)] = 100;
+			for(int i = 0; i < zeroIndexes.size(); i++){
+				newProb[this.probIndex(predator.grid.getObjectLocation(predator), (Int2D) zeroIndexes.get(i), predator.direction)] = 0;
+			}
+		}
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
 		
@@ -108,6 +117,16 @@ public class BehaviorProcessor {
 			}
 		}
 
+		if(fLocations.size() == 1){
+			Bag zeroIndexes = new Bag();
+			zeroIndexes = this.findEmptySquareLocations(prey.grid.getObjectLocation(prey), fLocations);
+			Int2D food = (Int2D) fLocations.get(0);
+			newProb[this.probIndex(prey.grid.getObjectLocation(prey), food, prey.direction)] = 100;
+			for(int i = 0; i < zeroIndexes.size(); i++){
+				newProb[this.probIndex(prey.grid.getObjectLocation(prey), (Int2D) zeroIndexes.get(i), prey.direction)] = 0;
+			}
+		}
+			
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
 		

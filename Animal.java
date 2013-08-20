@@ -46,7 +46,6 @@ public abstract class Animal implements Steppable {
 	public void step(SimState state) {
 		// TODO Auto-generated method stub
 		PVP pvp = (PVP)state;
-		
 		grid = pvp.world;
 		age++;
 		lastMeal++;
@@ -56,8 +55,8 @@ public abstract class Animal implements Steppable {
 		vP = new VisualProcessor(state);
 		
 		System.out.print(state.schedule.getTime() + ", " + numPrey + ", " + numPredator);
-		if(numPrey == 0 && numPredator == 0){
-			state.finish();
+		if((numPrey == 1 && numPredator == 0) || (numPrey == 0 && numPredator == 1)){
+			state.kill();
 		}
 	}
 
