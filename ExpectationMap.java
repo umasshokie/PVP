@@ -50,6 +50,9 @@ public class ExpectationMap {
 				int y = grid.getObjectLocation(pred).y;
 				
 				conspecificLocationMap[x][y] = 1.0;
+				
+				if(pred.isDiseased)
+					poisonLocationMap[x][y] = 1.0;
 			}
 			
 		}
@@ -87,21 +90,21 @@ public class ExpectationMap {
 			}
 		}// end of for loops
 		
-		int gArea = gWidth * gHeight;
-		double foodNonZero = (double)nonZeroF/gArea;
-		double foodMemory = (double)memoryValueF/gArea;
+		double gArea = (double) gWidth * gHeight;
+		double foodNonZero = nonZeroF/gArea;
+		double foodMemory = memoryValueF/gArea;
 		System.out.print(", " + foodNonZero + ", " + foodMemory);
 		
-		double conspecificNonZero = (double)nonZeroC/gArea;
-		double conspecificMemory = (double)memoryValueC/gArea;
+		double conspecificNonZero = nonZeroC/gArea;
+		double conspecificMemory = memoryValueC/gArea;
 		System.out.print(", " + conspecificNonZero + ", " + conspecificMemory);
 		
-		double predatorNonZero = (double)nonZeroP/gArea;
-		double predatorMemory = (double)memoryValueP/gArea;
+		double predatorNonZero = nonZeroP/gArea;
+		double predatorMemory = memoryValueP/gArea;
 		System.out.print(", " + predatorNonZero + ", " + predatorMemory);
 		
-		double poisonNonZero = (double)nonZeroX/gArea;
-		double poisonMemory = (double)memoryValueX/gArea;
+		double poisonNonZero = nonZeroX/gArea;
+		double poisonMemory = memoryValueX/gArea;
 		System.out.print(", " + poisonNonZero + ", " + poisonMemory);
 	}
 	

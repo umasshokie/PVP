@@ -56,7 +56,9 @@ public abstract class Animal implements Steppable {
 		vP = new VisualProcessor(state);
 		
 		System.out.print(state.schedule.getTime() + ", " + numPrey + ", " + numPredator);
-		
+		if(numPrey == 0 && numPredator == 0){
+			state.finish();
+		}
 	}
 
 	protected void move(SparseGrid2D grid, SimState pvp){

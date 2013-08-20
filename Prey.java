@@ -203,7 +203,7 @@ private Bag seen;
 		seen = vP.sight(cord.x, cord.y, state, direction);
 		Bag locations = new Bag();
 		if(state.schedule.getTime()%2 != 0)
-			map.updateMapsPred(seen, grid);
+			map.updateMapsPrey(seen, grid);
 		
 		//map.printMaps();
 		for(int s = 0; s < seen.size(); s++){

@@ -59,7 +59,7 @@ public class BehaviorProcessor {
 		//two sides reduced by one fourth, goes to location around reward
 		
 		this.rewardProbability(fLocations, newProb, oldProb, predator);
-		//this.rewardProbability(sLocations, newProb, oldProb, predator);
+		this.rewardProbability(sLocations, newProb, oldProb, predator);
 	
 		return newProb;
 }
@@ -111,9 +111,9 @@ public class BehaviorProcessor {
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
 		
-		//this.rewardProbability(fLocations, newProb, oldProb, prey);
-		//this.rewardProbability(sLocations, newProb, oldProb, prey);
-		//this.avoidanceProbability(pLocations, newProb, oldProb, prey);
+		this.rewardProbability(fLocations, newProb, oldProb, prey);
+		this.rewardProbability(sLocations, newProb, oldProb, prey);
+		this.avoidanceProbability(pLocations, newProb, oldProb, prey);
 	
 		return newProb;
 	
