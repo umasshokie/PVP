@@ -55,7 +55,7 @@ public class BehaviorProcessor {
 			}
 		}
 
-		if(fLocations.size() == 1){
+		/*if(fLocations.size() == 1){
 			Bag zeroIndexes = new Bag();
 			zeroIndexes = this.findEmptySquareLocations(predator.grid.getObjectLocation(predator), fLocations);
 			Int2D food = (Int2D) fLocations.get(0);
@@ -63,7 +63,7 @@ public class BehaviorProcessor {
 			for(int i = 0; i < zeroIndexes.size(); i++){
 				newProb[this.probIndex(predator.grid.getObjectLocation(predator), (Int2D) zeroIndexes.get(i), predator.direction)] = 0;
 			}
-		}
+		}*/
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
 		
@@ -117,7 +117,7 @@ public class BehaviorProcessor {
 			}
 		}
 
-		if(fLocations.size() == 1){
+		/*if(fLocations.size() == 1){
 			Bag zeroIndexes = new Bag();
 			zeroIndexes = this.findEmptySquareLocations(prey.grid.getObjectLocation(prey), fLocations);
 			Int2D food = (Int2D) fLocations.get(0);
@@ -125,7 +125,7 @@ public class BehaviorProcessor {
 			for(int i = 0; i < zeroIndexes.size(); i++){
 				newProb[this.probIndex(prey.grid.getObjectLocation(prey), (Int2D) zeroIndexes.get(i), prey.direction)] = 0;
 			}
-		}
+		}*/
 			
 		//opposite is reduced by half, goes to location of reward
 		//two sides reduced by one fourth, goes to location around reward
@@ -759,7 +759,7 @@ public class BehaviorProcessor {
 	}
 	protected void increaseToward(int last, Bag movable, double[]newProb, Int2D pLoc, Bag usedSquares, Animal p, int type){
 		
-		double drive;
+		/*double drive;
 		double x = 0;
 		Bag emptyLoc = this.findEmptySquareLocations(pLoc, usedSquares);
 		int[] emptySq = findEmptySquares(pLoc, usedSquares);
@@ -816,7 +816,7 @@ public class BehaviorProcessor {
 			if(negativeIndexes[i] != 0 && i !=0)
 				newProb[negativeIndexes[i]] = newProb[negativeIndexes[i]] - subtractIndividual;
 		}
-		
+		*/
 		
 	} // end of method
 	
@@ -831,6 +831,25 @@ public class BehaviorProcessor {
 		//Reward Probability
 		for(int f = 0; f< locations.size(); f++){
 			
+			if(locations.size() > 0){
+				
+				if((locations.get(0).equals(Food.class) && p.getClass().equals(Prey.class)) 
+						|| (locations.get(0).equals(Prey.class) && p.getClass().equals(Predator.class))){
+					this.increaseToward(p.lastMeal, this.findMovableLocations(pLoc), newProb, pLoc, usedSquares, p, 0);
+					break;
+				}
+				else if (locations.get(0).equals(p.getClass())){
+					this.increaseToward(p.lastSocial, this.findMovableLocations(pLoc), newProb, pLoc, usedSquares, p, 1);
+					break;
+				}
+				System.out.println("Ploc: " + pLoc);
+				/*for(int i = 0; i < newProb.length; i++){
+					System.out.println("After: newProb[i]: " + newProb[i]);
+				}*/
+				
+			}
+			
+			Bag oppositeAll = new Bag();
 			//Set of conditions. If hungry
 			//Reward locations
 			Int2D rewardLoc = (Int2D) locations.get(f);
@@ -853,14 +872,25 @@ public class BehaviorProcessor {
 			Int2D adjCell1 = (Int2D) opp.get(1);
 			Int2D adjCell2 = (Int2D) opp.get(2);
 			
+			Bag usedS = new Bag();
+			usedS.addAll(adj);
+			oppositeAll = this.findEmptySquareLocations(pLoc, usedS);
+			
 			/*System.out.println("Opposite Cell: " + oppositeCell);
 			System.out.println("Opp Adj Cell 1:" + adjCell1);
 			System.out.println("Opp Adj Cell 2:" + adjCell2);*/
+			double rewardTotal = 0;
 			
+			for(int k = 0; k< oppositeAll.size(); k++){
+				Int2D temp = (Int2D) oppositeAll.get(k);
+				int index = this.probIndex(pLoc, temp, direct);
+				rewardTotal = newProb[index]/4;
+				newProb[index] = newProb[index] - (newProb[index]/4);
+			}
 			//Indexes
-			int directOppositeIndex = this.probIndex(pLoc, oppositeCell, direct);
-			int adjOpposite1Index = this.probIndex(pLoc, adjCell1, direct);
-			int adjOpposite2Index = this.probIndex(pLoc, adjCell2, direct);
+			//int directOppositeIndex = this.probIndex(pLoc, oppositeCell, direct);
+			//int adjOpposite1Index = this.probIndex(pLoc, adjCell1, direct);
+			//int adjOpposite2Index = this.probIndex(pLoc, adjCell2, direct);
 			int rewardIndex = this.probIndex(pLoc, rewardLoc, direct);
 			int adj1Index = this.probIndex(pLoc, adjLoc1, direct);
 			int adj2Index = this.probIndex(pLoc, adjLoc2, direct);
@@ -881,7 +911,7 @@ public class BehaviorProcessor {
 				adjDivider = 2.0;
 				
 			}
-			double opposite = newProb[directOppositeIndex];
+			/*double opposite = newProb[directOppositeIndex];
 			double directOppositeReduction = opposite/mainDivider;
 			
 			
@@ -890,15 +920,15 @@ public class BehaviorProcessor {
 			
 			double adjOpp2 = newProb[adjOpposite2Index];
 			double adjOpp2Reduction = adjOpp2/adjDivider;
-			
+			*/
 			//variables for redistribution
-			newProb[directOppositeIndex] = oldProb[directOppositeIndex] - (directOppositeReduction);
-			newProb[adjOpposite1Index] = oldProb[adjOpposite1Index] - (adjOpp1Reduction);
-			newProb[adjOpposite2Index] = oldProb[adjOpposite2Index] - (adjOpp2Reduction);
+			//newProb[directOppositeIndex] = oldProb[directOppositeIndex] - (directOppositeReduction);
+			//newProb[adjOpposite1Index] = oldProb[adjOpposite1Index] - (adjOpp1Reduction);
+			//newProb[adjOpposite2Index] = oldProb[adjOpposite2Index] - (adjOpp2Reduction);
 			//updating probability reduction
 			
 			//add all reductions together, divide by four, half going to location of food source
-			double rewardTotal = directOppositeReduction + adjOpp1Reduction + adjOpp2Reduction;
+			//double rewardTotal = directOppositeReduction + adjOpp1Reduction + adjOpp2Reduction;
 			double singleReward = rewardTotal/4;
 			newProb[rewardIndex] = oldProb[rewardIndex] + (2 * singleReward);
 			newProb[adj1Index] = oldProb[adj1Index] + (singleReward);
@@ -908,18 +938,11 @@ public class BehaviorProcessor {
 			usedSquares.add(rewardLoc);
 			usedSquares.add(oppositeCell);
 		}
-		
-		if(locations.size() > 0){
-			if((locations.get(0).equals(Food.class) && p.getClass().equals(Prey.class)) 
-					|| (locations.get(0).equals(Prey.class) && p.getClass().equals(Predator.class)))
-				this.increaseToward(p.lastMeal, this.findMovableLocations(pLoc), newProb, pLoc, usedSquares, p, 0);
-			else if (locations.get(0).equals(p.getClass())){
-				this.increaseToward(p.lastSocial, this.findMovableLocations(pLoc), newProb, pLoc, usedSquares, p, 1);
-			}
-		}
 		/*for(int i = 0; i < newProb.length; i++){
-			System.out.println("newProb[i]: " + newProb[i]);
+		System.out.println("Before: newProb[i]: " + newProb[i]);
 		}*/
+		
+		
 	}// end of method
 	
 	public void avoidanceProbability(Bag locations, double[]newProb, double[]oldProb, Prey p){
@@ -987,7 +1010,7 @@ public class BehaviorProcessor {
 			
 		}
 		/*for(int i = 0; i < newProb.length; i++){
-			System.out.println("newProb[i]: " + newProb[i]);
+			System.out.println("Avoidance newProb[i]: " + newProb[i]);
 		}*/
 	}
 	

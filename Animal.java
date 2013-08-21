@@ -31,6 +31,7 @@ public abstract class Animal implements Steppable {
 	protected ExpectationMap map;
 	protected static int maxHunger;
 	protected static int maxSocial;
+	protected static int maxPrey = 150;
 	protected int lastSocial = 0;
 	protected int directChangeTotal = 0;
 	protected String ID;

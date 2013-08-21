@@ -12,7 +12,8 @@ public class Prey extends Animal implements Steppable{
 	 */
 private static final long serialVersionUID = 1L;
 private static int oldAge;
-private static double deathRate;
+private static double defaultDeathRate;
+private double actualDeathRate;
 private static int deathRandNum;
 private static double agingDeathMod;
 private static double hungerDeathMod;
@@ -42,6 +43,7 @@ private Bag seen;
 		maxHunger = 30;
 		maxSocial = 30;
 		actualRepRate = defaultRepRate;
+		actualDeathRate = defaultDeathRate;
 		ID = "R" + num;
 	}
 	protected final static void initializePrey(int maxH, int old,
@@ -49,7 +51,7 @@ private Bag seen;
 	
 		maxHunger = maxH;
 		oldAge = old;
-		deathRate = dR;
+		defaultDeathRate = dR;
 		deathRandNum = dRN;
 		agingDeathMod = agDM;
 		hungerDeathMod = hDM;
@@ -142,6 +144,7 @@ private Bag seen;
 		
 		//System.out.println(p);
 			Food food = (Food) p;
+			assert(food != null);
 			if(food.isDiseased())
 				this.setDisease(true);
 			//System.out.println(this + " ate " + p);
@@ -172,27 +175,27 @@ private Bag seen;
 
 	public boolean iDie(SimState state){
 		//older = more likely to die
-	 	if(age>oldAge)
-	 		deathRate = deathRate * agingDeathMod;
+	 	//if(age>oldAge)
+	 		//actualDeathRate = actualDeathRate * agingDeathMod;
 	 	
 	 	//Last meal, more likely to die
 	 	if(lastMeal > lastMealMed)
-			deathRate = deathRate * hungerDeathMod;
-		//System.out.println("deathRate: " + deathRate);
+			actualDeathRate = actualDeathRate * hungerDeathMod;
+		/*//System.out.println("deathRate: " + deathRate);
 	 	
 	 	if(lastMeal > lastMealHigh){
 			 stop.stop();
 			 numPrey--;
 			 grid.remove(this);
 			 return true;
-		 }
+		 }*/
 	 	
 	 	// Death Rate
 		double d = state.random.nextInt(deathRandNum);
 		double death = d/deathRandNum;
 		
 		//System.out.println("d: " + d + " death: " + death);
-		if(death < deathRate && death != 0){
+		if(death < actualDeathRate && death != 0){
 			this.stop.stop();
 			numPrey--;
 			grid.remove(this);
@@ -205,7 +208,7 @@ private Bag seen;
 	// Reproduction Rate
 		double r = state.random.nextInt(repRandNum);
 		double repo = r/repRandNum;
-		if(repo <= actualRepRate && age >= repAge){
+		if(repo <= actualRepRate && age >= repAge && numPrey<maxPrey){
 			this.reproduce(state);
 			return true;
 			}

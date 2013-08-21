@@ -117,10 +117,13 @@ public class Food implements Steppable {
 	}
 	
 	public void eat(){
-		amount = amount - .9;
+		amount = amount - .7;
 		if(amount <0){
-			grid.remove(this);
+			amount = 0.0;
+			//may be a point where it is being removed, but not stopped.
 			this.stop.stop();
+			grid.remove(this);
+			
 		}
 	}
 }// end of class

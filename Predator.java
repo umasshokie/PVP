@@ -8,7 +8,8 @@ import sim.util.Int2D;
 public class Predator extends Animal implements Steppable{
 
 private static int oldAge;
-private static double deathRate;
+private static double defaultDeathRate;
+private double actualDeathRate;
 private static int deathRandNum;
 private static double agingDeathMod;
 private static double hungerDeathMod;
@@ -40,6 +41,7 @@ private Bag seen;
 		maxHunger = 30;
 		maxSocial = 50;
 		actualRepRate = defaultRepRate;
+		actualDeathRate = defaultDeathRate;
 		ID = "F" + num;
 	}
 	
@@ -48,7 +50,7 @@ private Bag seen;
 	
 		maxHunger = maxH;
 		oldAge = old;
-		deathRate = dR;
+		defaultDeathRate = dR;
 		deathRandNum = dRN;
 		agingDeathMod = agDM;
 		hungerDeathMod = hDM;
@@ -77,6 +79,7 @@ private Bag seen;
 			System.out.print(", " + ID);
 			map.printMaps();
 			System.out.print(", " + lastMeal);
+			System.out.print(", " + actualDeathRate);
 			System.out.print(", " + lastSocial);
 			System.out.print(", " + directChangeTotal + "\n");
 			return;
@@ -87,6 +90,7 @@ private Bag seen;
 			System.out.print(", " + ID);
 			map.printMaps();
 			System.out.print(", " + lastMeal);
+			System.out.print(", " + actualDeathRate);
 			System.out.print(", " + lastSocial);
 			System.out.print(", " + directChangeTotal + "\n");
 			return;
@@ -97,6 +101,7 @@ private Bag seen;
 			System.out.print(", " + ID);
 			map.printMaps();
 			System.out.print(", " + lastMeal);
+			System.out.print(", " + actualDeathRate);
 			System.out.print(", " + lastSocial);
 			System.out.print(", " + directChangeTotal);
 			System.out.print(", " + "Predator Ate" + "\n");
@@ -114,6 +119,7 @@ private Bag seen;
 		System.out.print(", " + ID);
 		map.printMaps();
 		System.out.print(", " + lastMeal);
+		System.out.print(", " + actualDeathRate);
 		System.out.print(", " + lastSocial);
 		System.out.print(", " + directChangeTotal + "\n");
 		
@@ -133,6 +139,7 @@ private Bag seen;
 			prey.stop.stop();
 			numPrey--;
 			grid.remove(prey);
+			//System.out.println("Prey was eaten by Predator");
 
 	
 			
@@ -145,19 +152,19 @@ private Bag seen;
 	public boolean iDie(SimState state){
 		
 		 //older = more likely to die
-		 if(age>oldAge)
-		 	deathRate = deathRate * agingDeathMod;
+		 //if(age>oldAge)
+		 	//actualDeathRate = actualDeathRate * agingDeathMod;
 		 	
 		 //Last meal, more likely to die
 		 if(lastMeal > lastMealMed)
-			deathRate = deathRate * hungerDeathMod;
-		//System.out.println("deathRate: " + deathRate);
+			actualDeathRate = actualDeathRate * hungerDeathMod;
+		/*//System.out.println("deathRate: " + deathRate);
 		 if(lastMeal > lastMealHigh){
 			 stop.stop();
 			 numPredator--;
 			 grid.remove(this);
 			 return true;
-		 }
+		 }*/
 		 // Death Rate
 		double d = state.random.nextInt(deathRandNum);
 		double death = d/deathRandNum;
@@ -165,8 +172,8 @@ private Bag seen;
 		assert(d >= 0 && death >=0);
 		
 		//System.out.println("d: " + d + " death: " + death);
-		if(death < deathRate){
-			//System.out.println(this + " Died");
+		if(death < actualDeathRate){
+			System.out.println(this + " Died from Death Chance");
 			stop.stop();
 			numPredator--;
 			grid.remove(this);
@@ -196,12 +203,12 @@ private Bag seen;
 	public boolean willEat(SparseGrid2D grid, SimState state){
 		
 		if(lastMeal < lastMealLow)
-			return false;
-		
+			actualRepRate = actualRepRate * 1.5;
+		/*
 		else if(lastMeal < lastMealMed){
 			if(state.schedule.getTime()%1 == 0)
 				return false;
-		}
+		}*/
 		
 		//Eating Prey on the same location
 		assert(grid.getObjectsAtLocationOfObject(this) !=null);
@@ -227,7 +234,7 @@ private Bag seen;
 	//Method that allows Predator to duplicate
 	public void reproduce(SimState state){
 		
-		System.out.println("Predator Reproduced");
+		//System.out.println("Predator Reproduced");
 		
 		Predator p = new Predator(state, grid, numPredator + 1);
 		numPredator++;
