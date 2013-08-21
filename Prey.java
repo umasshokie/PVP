@@ -148,7 +148,14 @@ private Bag seen;
 			if(food.isDiseased())
 				this.setDisease(true);
 			//System.out.println(this + " ate " + p);
-			food.eat();
+			food.amount = food.amount - .9;
+			if(food.amount <0){
+				//amount = 0.0;
+				//may be a point where it is being removed, but not stopped.
+				food.stop.stop();
+				grid.remove(food);
+				
+			}
 			lastMeal = 0;
 			
 			//System.out.println("Food is removed");

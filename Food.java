@@ -6,12 +6,13 @@ import sim.util.Int2D;
 
 public class Food implements Steppable {
 
-	private double amount = 1.0;
+	protected double amount = 1.0;
 	private double diseasePr = .005;
 	private int diseaseRandNum = 10000;
-	private double repPr = .001;
+	private double repPr = .0005;
 	private int repRandNum = 10000;
 	private boolean diseased = false;
+	private double regrowthRate = .025;
 	public SparseGrid2D grid;
 	protected Stoppable stop;
 
@@ -24,7 +25,7 @@ public class Food implements Steppable {
 		grid = pvp.world;
 		
 		//Slowly grows back
-		amount += .05;
+		amount += regrowthRate;
 		
 		//Chance of disease
 		this.diseaseChance(pvp);
@@ -119,7 +120,7 @@ public class Food implements Steppable {
 	public void eat(){
 		amount = amount - .7;
 		if(amount <0){
-			amount = 0.0;
+			//amount = 0.0;
 			//may be a point where it is being removed, but not stopped.
 			this.stop.stop();
 			grid.remove(this);

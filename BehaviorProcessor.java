@@ -842,7 +842,7 @@ public class BehaviorProcessor {
 					this.increaseToward(p.lastSocial, this.findMovableLocations(pLoc), newProb, pLoc, usedSquares, p, 1);
 					break;
 				}
-				System.out.println("Ploc: " + pLoc);
+				//System.out.println("Ploc: " + pLoc);
 				/*for(int i = 0; i < newProb.length; i++){
 					System.out.println("After: newProb[i]: " + newProb[i]);
 				}*/

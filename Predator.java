@@ -158,6 +158,7 @@ private Bag seen;
 		 //Last meal, more likely to die
 		 if(lastMeal > lastMealMed)
 			actualDeathRate = actualDeathRate * hungerDeathMod;
+		 
 		/*//System.out.println("deathRate: " + deathRate);
 		 if(lastMeal > lastMealHigh){
 			 stop.stop();
@@ -204,11 +205,8 @@ private Bag seen;
 		
 		if(lastMeal < lastMealLow)
 			actualRepRate = actualRepRate * 1.5;
-		/*
-		else if(lastMeal < lastMealMed){
-			if(state.schedule.getTime()%1 == 0)
-				return false;
-		}*/
+		
+		
 		
 		//Eating Prey on the same location
 		assert(grid.getObjectsAtLocationOfObject(this) !=null);
