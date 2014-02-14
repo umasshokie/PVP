@@ -1,6 +1,6 @@
 package sim.app.pvp;
 
-import ec.util.MersenneTwisterFast;
+
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.Stoppable;
@@ -23,6 +23,7 @@ public abstract class Animal implements Steppable {
 	public final static int WEST = 3;
 	public static int numPrey;
 	public static int numPredator;
+	protected int reproductionAge;
 	protected static double expectMapDecayRate;
 	protected int velocity = 1;
 	protected BehaviorProcessor behavior;

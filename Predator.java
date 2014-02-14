@@ -41,6 +41,7 @@ private Bag seen;
 		maxHunger = 30;
 		maxSocial = 50;
 		actualRepRate = defaultRepRate;
+		reproductionAge = repAge;
 		actualDeathRate = defaultDeathRate;
 		ID = "F" + num;
 	}

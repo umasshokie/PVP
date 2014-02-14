@@ -20,8 +20,8 @@ private static double hungerDeathMod;
 private static int lastMealLow;
 private static int lastMealMed;
 private static int lastMealHigh;
-private static double repAge;
 private static int repRandNum;
+private static int repAge;
 private static double defaultRepRate;
 private static double actualRepRate;
 private Bag seen;
@@ -44,6 +44,7 @@ private Bag seen;
 		maxSocial = 30;
 		actualRepRate = defaultRepRate;
 		actualDeathRate = defaultDeathRate;
+		reproductionAge = repAge;
 		ID = "R" + num;
 	}
 	protected final static void initializePrey(int maxH, int old,
